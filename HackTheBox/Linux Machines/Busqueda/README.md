@@ -31,7 +31,23 @@ Service Info: Host: searcher.htb; OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 ## Initial Foothold - Web Application Analysis
 
-A website with the domain `searcher.htb` is being hosted on port 80. I edited the `/etc/hosts` file and navigated to `searcher.htb` in Firefox.
+A website with the domain `searcher.htb` is being hosted on port 80. I edited the `/etc/hosts` file and navigated to `searcher.htb` in Firefox. In BurpSuite under the HTTP history tab, I can see the various HTTP Requests and Responses being sent while interacting with the application. The web application allows us to select a search engine and some test criteria. It then redirects us to that search engine.
+
+In the HTTP Response `Server` header, I can see `Werkzeug/2.1.2 Python/3.10.6` which indicates python is installed on the server.
+
+Used `ffuf` to enumerate hidden directories:
+
+```bash
+ffuf -c -u http://searcher.htb/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -ic -o ffuf_fuzz_small.txt
+
+
+```
+
+
+
+# Resources
+
+* [Werkzeug / Flask Debug](https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/werkzeug)
 
 
 
