@@ -47,6 +47,7 @@ search                  [Status: 405, Size: 153, Words: 16, Lines: 6, Duration: 
 
 
 
+
 # Resources
 
 * [Werkzeug / Flask Debug](https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/werkzeug)
