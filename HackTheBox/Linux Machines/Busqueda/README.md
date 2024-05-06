@@ -40,7 +40,9 @@ Used `ffuf` to enumerate hidden directories:
 ```bash
 ffuf -c -u http://searcher.htb/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -ic -o ffuf_fuzz_small.txt
 
-
+                        [Status: 200, Size: 13519, Words: 3904, Lines: 430, Duration: 77ms]
+search                  [Status: 405, Size: 153, Words: 16, Lines: 6, Duration: 87ms]
+                        [Status: 200, Size: 13519, Words: 3904, Lines: 430, Duration: 81ms]
 ```
 
 
