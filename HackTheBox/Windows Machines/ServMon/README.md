@@ -26,5 +26,132 @@ NMAP Scan Port Services:
 ```bash
 nmap -sV -sC -Pn -v -oN nmap-report "10.10.10.184" -p 21,22,80,135,139,445,6063,6699,8443,49667,49670
 
+PORT      STATE SERVICE       VERSION
+21/tcp    open  ftp           Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_02-28-22  07:35PM       <DIR>          Users
+| ftp-syst: 
+|_  SYST: Windows_NT
+22/tcp    open  ssh           OpenSSH for_Windows_8.0 (protocol 2.0)
+| ssh-hostkey: 
+|   3072 c7:1a:f6:81:ca:17:78:d0:27:db:cd:46:2a:09:2b:54 (RSA)
+|   256 3e:63:ef:3b:6e:3e:4a:90:f3:4c:02:e9:40:67:2e:42 (ECDSA)
+|_  256 5a:48:c8:cd:39:78:21:29:ef:fb:ae:82:1d:03:ad:af (ED25519)
+80/tcp    open  http
+|_http-favicon: Unknown favicon MD5: 3AEF8B29C4866F96A539730FAB53A88F
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Site doesn't have a title (text/html).
+| fingerprint-strings: 
+|   GetRequest, HTTPOptions, RTSPRequest: 
+|     HTTP/1.1 200 OK
+|     Content-type: text/html
+|     Content-Length: 340
+|     Connection: close
+|     AuthInfo: 
+|     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+|     <html xmlns="http://www.w3.org/1999/xhtml">
+|     <head>
+|     <title></title>
+|     <script type="text/javascript">
+|     window.location.href = "Pages/login.htm";
+|     </script>
+|     </head>
+|     <body>
+|     </body>
+|     </html>
+|   NULL: 
+|     HTTP/1.1 408 Request Timeout
+|     Content-type: text/html
+|     Content-Length: 0
+|     Connection: close
+|_    AuthInfo:
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds?
+6063/tcp  open  x11?
+6699/tcp  open  napster?
+8443/tcp  open  ssl/https-alt
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=localhost
+| Issuer: commonName=localhost
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha1WithRSAEncryption
+| Not valid before: 2020-01-14T13:24:20
+| Not valid after:  2021-01-13T13:24:20
+| MD5:   1d03:0c40:5b7a:0f6d:d8c8:78e3:cba7:38b4
+|_SHA-1: 7083:bd82:b4b0:f9c0:cc9c:5019:2f9f:9291:4694:8334
+| fingerprint-strings: 
+|   FourOhFourRequest, HTTPOptions, RTSPRequest, SIPOptions: 
+|     HTTP/1.1 404
+|     Content-Length: 18
+|     Document not found
+|   GetRequest: 
+|     HTTP/1.1 302
+|     Content-Length: 0
+|     Location: /index.html
+|     jgf4
+|     /3KLCffK5o8
+|     workers
+|_    jobs
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+| http-title: NSClient++
+|_Requested resource was /index.html
+49667/tcp open  msrpc         Microsoft Windows RPC
+49670/tcp open  msrpc         Microsoft Windows RPC
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port80-TCP:V=7.94SVN%I=7%D=5/12%Time=6640A9FF%P=x86_64-pc-linux-gnu%r(N
+SF:ULL,6B,"HTTP/1\.1\x20408\x20Request\x20Timeout\r\nContent-type:\x20text
+SF:/html\r\nContent-Length:\x200\r\nConnection:\x20close\r\nAuthInfo:\x20\
+SF:r\n\r\n")%r(GetRequest,1B4,"HTTP/1\.1\x20200\x20OK\r\nContent-type:\x20
+SF:text/html\r\nContent-Length:\x20340\r\nConnection:\x20close\r\nAuthInfo
+SF::\x20\r\n\r\n\xef\xbb\xbf<!DOCTYPE\x20html\x20PUBLIC\x20\"-//W3C//DTD\x
+SF:20XHTML\x201\.0\x20Transitional//EN\"\x20\"http://www\.w3\.org/TR/xhtml
+SF:1/DTD/xhtml1-transitional\.dtd\">\r\n\r\n<html\x20xmlns=\"http://www\.w
+SF:3\.org/1999/xhtml\">\r\n<head>\r\n\x20\x20\x20\x20<title></title>\r\n\x
+SF:20\x20\x20\x20<script\x20type=\"text/javascript\">\r\n\x20\x20\x20\x20\
+SF:x20\x20\x20\x20window\.location\.href\x20=\x20\"Pages/login\.htm\";\r\n
+SF:\x20\x20\x20\x20</script>\r\n</head>\r\n<body>\r\n</body>\r\n</html>\r\
+SF:n")%r(HTTPOptions,1B4,"HTTP/1\.1\x20200\x20OK\r\nContent-type:\x20text/
+SF:html\r\nContent-Length:\x20340\r\nConnection:\x20close\r\nAuthInfo:\x20
+SF:\r\n\r\n\xef\xbb\xbf<!DOCTYPE\x20html\x20PUBLIC\x20\"-//W3C//DTD\x20XHT
+SF:ML\x201\.0\x20Transitional//EN\"\x20\"http://www\.w3\.org/TR/xhtml1/DTD
+SF:/xhtml1-transitional\.dtd\">\r\n\r\n<html\x20xmlns=\"http://www\.w3\.or
+SF:g/1999/xhtml\">\r\n<head>\r\n\x20\x20\x20\x20<title></title>\r\n\x20\x2
+SF:0\x20\x20<script\x20type=\"text/javascript\">\r\n\x20\x20\x20\x20\x20\x
+SF:20\x20\x20window\.location\.href\x20=\x20\"Pages/login\.htm\";\r\n\x20\
+SF:x20\x20\x20</script>\r\n</head>\r\n<body>\r\n</body>\r\n</html>\r\n")%r
+SF:(RTSPRequest,1B4,"HTTP/1\.1\x20200\x20OK\r\nContent-type:\x20text/html\
+SF:r\nContent-Length:\x20340\r\nConnection:\x20close\r\nAuthInfo:\x20\r\n\
+SF:r\n\xef\xbb\xbf<!DOCTYPE\x20html\x20PUBLIC\x20\"-//W3C//DTD\x20XHTML\x2
+SF:01\.0\x20Transitional//EN\"\x20\"http://www\.w3\.org/TR/xhtml1/DTD/xhtm
+SF:l1-transitional\.dtd\">\r\n\r\n<html\x20xmlns=\"http://www\.w3\.org/199
+SF:9/xhtml\">\r\n<head>\r\n\x20\x20\x20\x20<title></title>\r\n\x20\x20\x20
+SF:\x20<script\x20type=\"text/javascript\">\r\n\x20\x20\x20\x20\x20\x20\x2
+SF:0\x20window\.location\.href\x20=\x20\"Pages/login\.htm\";\r\n\x20\x20\x
+SF:20\x20</script>\r\n</head>\r\n<body>\r\n</body>\r\n</html>\r\n");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port8443-TCP:V=7.94SVN%T=SSL%I=7%D=5/12%Time=6640AA08%P=x86_64-pc-linux
+SF:-gnu%r(GetRequest,74,"HTTP/1\.1\x20302\r\nContent-Length:\x200\r\nLocat
+SF:ion:\x20/index\.html\r\n\r\n\0\0\0\0\0\0\0\0\0\0jgf4\0\0\0\0/3KLCffK5o8
+SF:\x12\x02\x18\0\x1aC\n\x07workers\x12\n\n\x04jobs\x12\x02\x188\x12\x0f")
+SF:%r(HTTPOptions,36,"HTTP/1\.1\x20404\r\nContent-Length:\x2018\r\n\r\nDoc
+SF:ument\x20not\x20found")%r(FourOhFourRequest,36,"HTTP/1\.1\x20404\r\nCon
+SF:tent-Length:\x2018\r\n\r\nDocument\x20not\x20found")%r(RTSPRequest,36,"
+SF:HTTP/1\.1\x20404\r\nContent-Length:\x2018\r\n\r\nDocument\x20not\x20fou
+SF:nd")%r(SIPOptions,36,"HTTP/1\.1\x20404\r\nContent-Length:\x2018\r\n\r\n
+SF:Document\x20not\x20found");
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 
+Host script results:
+| smb2-time: 
+|   date: 2024-05-12T11:39:49
+|_  start_date: N/A
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled but not required
+|_clock-skew: 3s
 ```
