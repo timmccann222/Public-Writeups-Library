@@ -155,3 +155,57 @@ Host script results:
 |_    Message signing enabled but not required
 |_clock-skew: 3s
 ```
+
+## FTP - Anonymous Login
+
+NMAP scan results show that Anonymous login is enabled for FTP. 
+
+```bash
+> ftp 10.10.10.184
+
+Connected to 10.10.10.184.
+220 Microsoft FTP Service
+Name (10.10.10.184:kali): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
+Password: 
+230 User logged in.
+```
+
+The FTP service with Anonymous login allowed us to access a `Users` directory which contained two directories called `Nadine` and `Nathan`. The `Nadine` directory contained a txt file titled `Confidential.txt` which indicates a file called `passwords.txt` is stored on the user Nathan's Desktop.
+
+```bash
+Nathan,
+
+I left your Passwords.txt file on your Desktop.  Please remove this once you have edited it yourself and place it back into the secure folder.
+
+Regards
+
+Nadine
+```
+
+The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indicates that Nathan did change his password but may not have removed the `passwords.txt` file from his desktop.
+
+```bash
+1) Change the password for NVMS - Complete
+2) Lock down the NSClient Access - Complete
+3) Upload the passwords
+4) Remove public access to NVMS
+5) Place the secret files in SharePoint
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
