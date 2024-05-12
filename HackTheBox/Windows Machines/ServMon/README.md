@@ -183,7 +183,7 @@ Regards
 Nadine
 ```
 
-The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indicates that Nathan did change his password but may not have removed the `passwords.txt` file from his desktop.
+The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indicates that Nathan did change his password but may not have removed the `passwords.txt` file from his desktop and perform some other tasks.
 
 ```bash
 1) Change the password for NVMS - Complete
@@ -192,6 +192,10 @@ The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indi
 4) Remove public access to NVMS
 5) Place the secret files in SharePoint
 ```
+
+## HTTP Website 
+
+Navigating to `http://10.10.10.184` returns a login page for NVMS-1000, which was mentioned in the txt file titled `Notes to do.txt` found earlier. 
 
 
 
