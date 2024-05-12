@@ -197,7 +197,7 @@ The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indi
 
 Navigating to `http://10.10.10.184` returns a login page for NVMS-1000, which was mentioned in the txt file titled `Notes to do.txt` found earlier. 
 
-
+![Login Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/ServMon/Images/Login%20Page.png)
 
 
 
