@@ -280,7 +280,7 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2024-05-12 13:43:
 I can login via SSH and recover the first flag.
 
 ```bash
-ssh nadine@10.10.10.184
+> ssh nadine@10.10.10.184
 
 Directory of C:\Users\Nadine\Desktop              
                                                    
@@ -289,6 +289,14 @@ Directory of C:\Users\Nadine\Desktop
 05/12/2024  04:32 AM                34 user.txt    
                1 File(s)             34 bytes      
                2 Dir(s)   6,130,212,864 bytes free
+```
+
+## Windows Privilege Escalation
+
+Used SCP to copy winpease script to target machine.
+
+```bash
+scp /usr/share/peass/winpeas/winPEASx64.exe nadine@10.10.10.184:C:/Users/Nadine/Desktop/winPEASx64.exe
 ```
 
 
