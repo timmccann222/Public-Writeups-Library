@@ -52,7 +52,17 @@ Host script results:
 
 ## Web - Ask Jeeves
 
-jeeves
+Port 80 throws an error:
+
+
+
+
+* Fuzzed port 50000 with ffuf:
+
+```bash
+ffuf -c -u http://10.10.10.63/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -ic
+ffuf -c -u http://10.10.10.63/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+```
 
 
 
