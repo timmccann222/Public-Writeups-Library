@@ -54,10 +54,10 @@ Host script results:
 
 Port 80 throws an error:
 
+[Error Image](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Jeeves/Images/Error%20Image.png)
 
 
-
-* Fuzzed port 50000 with ffuf:
+* Fuzzed port 50000 with ffuf - did not observe anything.
 
 ```bash
 ffuf -c -u http://10.10.10.63/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -ic
