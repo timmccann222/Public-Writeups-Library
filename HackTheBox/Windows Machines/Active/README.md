@@ -108,6 +108,8 @@ smb: \> dir
   active.htb                          D        0  Sat Jul 21 11:37:44 2018
 ```
 
+Found cPassword stored in `groups.xml` file under `\active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\MACHINE\Preferences\Groups\`. Used `gpp-decrypt` to decrypt it.
+
 
 
 
