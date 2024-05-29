@@ -75,5 +75,47 @@ Host script results:
 |_    Message signing enabled and required
 ```
 
+## SMB Enumeration
+
+SMB Share Enumeration with `smbclient`:
+
+```bash
+smbclient -L //10.10.10.100 -N
+
+Anonymous login successful
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        NETLOGON        Disk      Logon server share 
+        Replication     Disk      
+        SYSVOL          Disk      Logon server share 
+        Users           Disk      
+
+```
+
+Anonymous login successful to the share `Replication`:
+
+```bash
+smbclient //10.10.10.100/Replication -N
+Anonymous login successful
+Try "help" to get a list of possible commands.
+smb: \> dir
+  .                                   D        0  Sat Jul 21 11:37:44 2018
+  ..                                  D        0  Sat Jul 21 11:37:44 2018
+  active.htb                          D        0  Sat Jul 21 11:37:44 2018
+```
+
+
+
+
+
+
+
+
+
+
 
 
