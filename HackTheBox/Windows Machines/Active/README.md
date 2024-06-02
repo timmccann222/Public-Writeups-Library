@@ -75,7 +75,7 @@ Host script results:
 |_    Message signing enabled and required
 ```
 
-## SMB Enumeration
+## SMB Enumeration & GPP / cPassword Attacks (MS14-025)
 
 SMB Share Enumeration with `smbclient`:
 
