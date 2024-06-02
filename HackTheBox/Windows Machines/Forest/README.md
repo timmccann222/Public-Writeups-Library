@@ -210,6 +210,8 @@ Search for our AD account `svc-alfresco@htb.local` in Bloodhound in the search b
 
 ![BloodHound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Forest/Images/Bloodhound.png)
 
+From the above figure, we can see that svc-alfresco is a member of the group `Service Accounts` which is a member of the group `Privileged IT Accounts`, which is a member of `Account Operators`. 
+
 
 
 
