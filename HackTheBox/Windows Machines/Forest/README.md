@@ -208,7 +208,7 @@ Mode                LastWriteTime         Length Name
 
 Search for our AD account `svc-alfresco@htb.local` in Bloodhound in the search bar. Next, right click the user node and marked as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
 
-
+![BloodHound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Forest/Images/Bloodhound.png)
 
 
 
