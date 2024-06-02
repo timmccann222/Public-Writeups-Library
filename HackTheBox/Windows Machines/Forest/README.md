@@ -201,8 +201,12 @@ Mode                LastWriteTime         Length Name
 
 ## Bloodhound 
 
+1. Upload `SharpHound.ps1` or run `bloodhound.py` to generate ZIP file.
+2. Start neo4j database
+3. `Bloodhound` Run this on your attacker machine
+4. Inside of Bloodhound, import the `.zip` folder.
 
-
+Search for our AD account `svc-alfresco@htb.local` in Bloodhound in the search bar. Next, right click the user node and marked as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
 
 
 
