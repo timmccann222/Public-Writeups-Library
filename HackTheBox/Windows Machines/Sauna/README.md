@@ -137,7 +137,7 @@ evil-winrm -i 10.10.10.175 -u fsmith -p Thestrokes23
 
 # Root Flag
 
-## Windows Enumeration
+## Windows Enumeration & AutoLogon Credentials
 
 Executed `winPEASx64.exe` and reviewing the output, I found autologon credentials for the user `svc_loanmanager`
 
@@ -153,7 +153,7 @@ New set of credentials: `SVC_LOANMGR:Moneymakestheworldgoround!`
 
 **N.B.** username is still `SVC_LOANMGR@EGOTISTICAL-BANK.LOCAL`, despite output from winpeas.
 
-## Bloodhound Enumeration
+## Bloodhound & DCSync Attack
 
 Ran `bloodhound-python` to enumerate AD environment:
 
