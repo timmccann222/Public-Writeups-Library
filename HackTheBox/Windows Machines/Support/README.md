@@ -168,6 +168,8 @@ SMB         10.10.11.174    445    DC               1120: SUPPORT\ford.victoria 
 SMB         10.10.11.174    445    DC               2601: SUPPORT\MANAGEMENT$ (SidTypeUser)
 ```
 
+
+
 ## Keberos
 
 ```bash
