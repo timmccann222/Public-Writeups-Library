@@ -202,6 +202,9 @@ Tried checking for ASREPRoasting but this failed:
 sudo python3 /usr/share/doc/python3-impacket/examples/GetNPUsers.py support.htb/ -dc-ip 10.10.11.174 -usersfile userlist -no-pass -request -outputfile kerberos-users-found
 ```
 
+## UserInfo.exe - Static & Dynamic Analysis 
+
+Found `UserInfo.exe.zip` on publicly exposed SMB share and decided to copy the ZIP file to Flare VM for further analysis. 
 
 
 
