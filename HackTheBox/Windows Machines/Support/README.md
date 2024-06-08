@@ -204,7 +204,54 @@ sudo python3 /usr/share/doc/python3-impacket/examples/GetNPUsers.py support.htb/
 
 ## UserInfo.exe - Static & Dynamic Analysis 
 
-Found `UserInfo.exe.zip` on publicly exposed SMB share and decided to copy the ZIP file to Flare VM for further analysis. 
+Found `UserInfo.exe.zip` on publicly exposed SMB share and copied it to my kali machine. Unzipping the file, I get an executable titled `UserInfo.exe`, which looks to be a .NET application.
+
+```bash
+UserInfo.exe: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS Windows, 3 sections
+```
+
+Copied the file to my FlareVM machine and opened it in `dnSpy` to reverse engineer it. Reviewing the code, I can see that to query User Information, the executable uses the LDAP protocol. 
+
+```
+public LdapQuery()
+{
+        string password = Protected.getPassword();
+        this.entry = new DirectoryEntry("LDAP://support.htb", "support\\ldap", password);
+        this.entry.AuthenticationType = AuthenticationTypes.Secure;
+        this.ds = new DirectorySearcher(this.entry);
+}
+```
+
+To authenticate, the program uses the `getPassword()` function.
+
+```
+public static string getPassword()
+{
+	byte[] array = Convert.FromBase64String(Protected.enc_password);
+	byte[] array2 = array;
+	for (int i = 0; i < array.Length; i++)
+	{
+		array2[i] = (array[i] ^ Protected.key[i % Protected.key.Length] ^ 223);
+	}
+	return Encoding.Default.GetString(array2);
+}
+```
+
+This `getPassword()` function makes reference to `Protected.enc_password`, a protected varible which contains the encrypted password.
+
+```
+private static string enc_password = "0Nv32PTwgYjzg9/8j5TbmvPd3e7WhtWWyuPsyO76/Y+U193E";
+```
+
+The code also makes reference to protected `key` variable:
+
+```
+private static byte[] key = Encoding.ASCII.GetBytes("armando");
+```
+
+
+
+
 
 
 
