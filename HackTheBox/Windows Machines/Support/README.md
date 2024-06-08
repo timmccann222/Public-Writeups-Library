@@ -304,12 +304,35 @@ Mode                 LastWriteTime         Length Name
 
 ## Bloodhound
 
+Ran `bloodhound-python` to enumerate AD environment:
 
+```bash
+bloodhound-python -ns 10.10.11.174 -d support.htb -dc support.htb -u support -p Ironside47pleasure40Watchful -c All
+```
 
+Uploaded JSON files to bloodhound and searched for our AD account `support@support.htb` and `ldap@support.htb` in Bloodhound in the search bar. Next, I right clicked the user nodes and marked them as owned. In the Queries tab, I selected the pre-built query "Shortest Path from Owned Principals".
 
+**N.B.** Bloodhound appears to default to the edge case `CanPSRemote` for both owned principles, deleted edge case to view other potential paths.
 
+![Bloodhound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Images/BloodHound.png)
 
+Looking at Bloodhound, the support user is a member of the Shared `Support Accounts` group, which has `GenericAll` on the computer object, `DC.SUPPORT.HTB`.
 
+To exploit this, we need to keep track of the following information:
+
+* Target Computer name
+* Admin on Target Computer
+* Fake Computer Name
+* Fake Computer SID
+* Fake Computer Password
+
+In Bloodhound, we saw that the name of the target computer is `DC.SUPPORT.HTB` and, by clicking the node and looking at "unrolled admins", we can see that the admin on the target machine is `ADMINISTRATOR@SUPPORT.HTB`.
+
+![]()
+
+# Resources
+
+* [BloodHound 2.1's New Computer Takeover Attack - GenericAll](https://www.youtube.com/watch?v=RUbADHcBLKg&t=99s)
 
 
 
