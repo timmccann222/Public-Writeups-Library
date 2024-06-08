@@ -249,7 +249,7 @@ The code also makes reference to protected `key` variable:
 private static byte[] key = Encoding.ASCII.GetBytes("armando");
 ```
 
-Based on the information above, I created a simple python script titled (decrypt_password.py)[https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Scripts/decrypt_password.py] to decode the encrypted password.
+Based on the information above, I created a simple python script titled [decrypt_password.py](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Scripts/decrypt_password.py) to decode the encrypted password.
 
 
 
