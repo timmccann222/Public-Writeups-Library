@@ -328,7 +328,10 @@ To exploit this, we need to keep track of the following information:
 
 In Bloodhound, we saw that the name of the target computer is `DC.SUPPORT.HTB` and, by clicking the node and looking at "unrolled admins", we can see that the admin on the target machine is `ADMINISTRATOR@SUPPORT.HTB`.
 
-![]()
+![Bloodhound Admins](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Images/BloodHound%20DC%20Admins.png)
+
+
+
 
 # Resources
 
