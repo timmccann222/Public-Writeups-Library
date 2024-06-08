@@ -212,7 +212,7 @@ UserInfo.exe: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS W
 
 Copied the file to my FlareVM machine and opened it in `dnSpy` to reverse engineer it. Reviewing the code, I can see that to query User Information, the executable uses the LDAP protocol. 
 
-```
+```cs
 public LdapQuery()
 {
         string password = Protected.getPassword();
@@ -224,7 +224,7 @@ public LdapQuery()
 
 To authenticate, the program uses the `getPassword()` function.
 
-```
+```cs
 public static string getPassword()
 {
 	byte[] array = Convert.FromBase64String(Protected.enc_password);
@@ -239,13 +239,13 @@ public static string getPassword()
 
 This `getPassword()` function makes reference to `Protected.enc_password`, a protected varible which contains the encrypted password.
 
-```
+```cs
 private static string enc_password = "0Nv32PTwgYjzg9/8j5TbmvPd3e7WhtWWyuPsyO76/Y+U193E";
 ```
 
 The code also makes reference to protected `key` variable:
 
-```
+```cs
 private static byte[] key = Encoding.ASCII.GetBytes("armando");
 ```
 
