@@ -259,7 +259,9 @@ mono UserInfo.exe user -username smith.rosario@support.htb
 
 ![Wireshark](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Images/LDAP%20Wireshark.png)
 
+We can see that Wireshark captured the decrypted password `nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz`.
 
+##
 
 
 
