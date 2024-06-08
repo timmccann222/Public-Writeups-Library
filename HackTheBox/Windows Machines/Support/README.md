@@ -251,6 +251,11 @@ private static byte[] key = Encoding.ASCII.GetBytes("armando");
 
 Based on the information above, I created a simple python script titled [decrypt_password.py](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Scripts/decrypt_password.py) to decode the encrypted password.
 
+Alertnatively, since the program uses the LDAP protocol which does not use encryption, we can run the code and capture the password in wireshark. I created an entry in my `hosts` file for `support.htb`and spun up Wireshark to list on the tunnel interface (tun0). I provided one of the user I enumertaed earlier as input and executed the binary.
+
+```bash
+mono UserInfo.exe user -username smith.rosario@support.htb
+```
 
 
 
