@@ -257,7 +257,7 @@ Alertnatively, since the program uses the LDAP protocol which does not use encry
 mono UserInfo.exe user -username smith.rosario@support.htb
 ```
 
-
+![Wireshark](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Images/LDAP%20Wireshark.png)
 
 
 
