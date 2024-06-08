@@ -286,6 +286,25 @@ uSNChanged: 12630
 
 New set of credentials: `support:Ironside47pleasure40Watchful`.
 
+Used `evil-winrm` and got the user flag.
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Desktop> dir
+
+
+    Directory: C:\Users\support\Desktop
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-ar---          6/8/2024   4:13 AM             34 user.txt
+```
+
+# Root Flag
+
+## Bloodhound
+
+
 
 
 
