@@ -300,7 +300,7 @@ Mode                 LastWriteTime         Length Name
 -ar---          6/8/2024   4:13 AM             34 user.txt
 ```
 
-# Root Flag
+# Root Flag - Abuse GenericAll
 
 ## Bloodhound
 
