@@ -247,10 +247,17 @@ Only have access to the `IT` share and extracted multiple files:
 -rw-r--r-- 1 kali kali 5967 Jun 15 14:34  dcdiag.log
 ```
 
+The Email Message in `Meeting_Notes_June_2018.html`:
 
+![Email Message](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Cascade/Images/Email%20Message.png)
 
+The file `'VNC Install.reg'` contains a password:
 
+```bash
+cat 'VNC Install.reg'
 
+"Password"=hex:6b,cf,2a,4b,6e,5a,ca,0f
+```
 
 
 
