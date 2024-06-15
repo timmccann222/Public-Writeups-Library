@@ -364,6 +364,44 @@ Pulled the executable `CascAudit.exe` which is a .Net executable and saved it on
 CascAudit.exe: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS Windows, 3 sections
 ```
 
+Loding the executable `CascAudit.exe` in DnSpy shows that the password is being decrypted using the “Crypto” library.
+
+```csharp
+try {
+  sqliteConnection.Open();
+  using(SQLiteCommand sqliteCommand = new SQLiteCommand("SELECT * FROM LDAP", sqliteConnection)) {
+    using(SQLiteDataReader sqliteDataReader = sqliteCommand.ExecuteReader()) {
+      sqliteDataReader.Read();
+      str = Conversions.ToString(sqliteDataReader["Uname"]);
+      str2 = Conversions.ToString(sqliteDataReader["Domain"]);
+      string text = Conversions.ToString(sqliteDataReader["Pwd"]);
+      try {
+        password = Crypto.DecryptString(text, "c4scadek3y654321");
+      } catch (Exception ex) {
+        Console.WriteLine("Error decrypting password: " + ex.Message);
+        return;
+      }
+    }
+  }
+  sqliteConnection.Close();
+} catch (Exception ex2) {
+  Console.WriteLine("Error getting LDAP connection data From database: " + ex2.Message);
+  return;
+}
+```
+
+I can also see that `CascCrypto` is a DLL being used.
+
+```csharp
+using System;
+using System.Collections;
+using System.Data.SQLite;
+using System.DirectoryServices;
+using CascAudiot.My;
+using CascCrypto;
+using Microsoft.VisualBasic.CompilerServices;
+```
+
 
 
 
