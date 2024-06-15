@@ -259,6 +259,16 @@ cat 'VNC Install.reg'
 "Password"=hex:6b,cf,2a,4b,6e,5a,ca,0f
 ```
 
+The file `ArkAdRecycleBin.log` contains keyword `TempAdmin`:
+
+```bash
+8/12/2018 12:22 [MAIN_THREAD]   ** STARTING - ARK AD RECYCLE BIN MANAGER v1.2.2 **
+8/12/2018 12:22 [MAIN_THREAD]   Validating settings...
+8/12/2018 12:22 [MAIN_THREAD]   Running as user CASCADE\ArkSvc
+8/12/2018 12:22 [MAIN_THREAD]   Moving object to AD recycle bin CN=TempAdmin,OU=Users,OU=UK,DC=cascade,DC=local
+8/12/2018 12:22 [MAIN_THREAD]   Successfully moved object. New location CN=TempAdmin\0ADEL:f0cc344d-31e0-4866-bceb-a842791ca059,CN=Deleted Objects,DC=cascade,DC=local
+```
+
 
 
 
