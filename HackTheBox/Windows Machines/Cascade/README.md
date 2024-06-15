@@ -427,7 +427,9 @@ public static string DecryptString(string EncryptedString, string Key) {
 
 The code is using the IV (Initialization Vector) `1tdyjCbY1Ix49842` and the code is basically using the AES 128 bit decryption with the cipher mode CBC and a key size of 128 bits. Based on the information at hand, I can decrypt the password using the following [website](https://www.devglan.com/online-tools/aes-encryption-decryption).
 
-I can also create a python script to decrypt the password.
+I can also create a python [script](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Cascade/Scripts/decrypt_password.py) to decrypt the password.
+
+New set of credentials: `ArkSvc:w3lc0meFr31nd`
 
 
 
