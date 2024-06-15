@@ -144,6 +144,40 @@ Host script results:
 |_    Message signing enabled and required
 ```
 
+## SMB Enumeration
+
+Used `smbclient` to enumerate shares:
+
+```bash
+smbclient -L //10.10.11.202 -N
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        NETLOGON        Disk      Logon server share 
+        Public          Disk      
+        SYSVOL          Disk      Logon server share
+```
+
+Accessed the SMB share `Public`:
+
+```bash
+smb: \> dir
+  .                                   D        0  Sat Nov 19 11:51:25 2022
+  ..                                  D        0  Sat Nov 19 11:51:25 2022
+  SQL Server Procedures.pdf           A    49551  Fri Nov 18 13:39:43 2022
+```
+
+
+The file `SQL Server Procedures.pdf` makes reference to SQL server incidents.
+
+![](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Escape/Images/SQL%20Server%20Document.png)
+
+Found a user `brandon.brown@sequel.htb` and a set of credentials `PublicUser:GuestUserCantWrite1` in the `SQL Server Procedures.pdf` doucment. 
+
+
 
 
 
