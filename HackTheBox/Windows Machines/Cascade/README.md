@@ -269,7 +269,14 @@ The file `ArkAdRecycleBin.log` contains keyword `TempAdmin`:
 8/12/2018 12:22 [MAIN_THREAD]   Successfully moved object. New location CN=TempAdmin\0ADEL:f0cc344d-31e0-4866-bceb-a842791ca059,CN=Deleted Objects,DC=cascade,DC=local
 ```
 
+Searching online provides a [method](https://github.com/frizb/PasswordDecrypts) to decrypt the VNC password:
 
+```bash
+echo -n "6bcf2a4b6e5aca0f"| xxd -r -p | openssl enc -des-cbc --nopad --nosalt -K e84ad660c4721ae0 -iv 0000000000000000 -d | hexdump -Cv
+
+00000000  73 54 33 33 33 76 65 32                           |sT333ve2|
+00000008
+```
 
 
 
