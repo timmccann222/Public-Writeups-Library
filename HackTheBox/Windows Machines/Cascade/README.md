@@ -354,6 +354,20 @@ Pulled files to kali machine and viewed `Audit.db` in `sqlitebrowser`:
 
 ![database](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Cascade/Images/Database.png)
 
+Attempting to base64 decode the password `BQO5l5Kj9MdErXx6Q6AGOw==` for the user `ArkSvc` does not return a string so it looks to be encrypted. 
+
+## Reverse Engineer Executable
+
+Pulled the executable `CascAudit.exe` which is a .Net executable and saved it on the FlareVM machine:
+
+```bash
+CascAudit.exe: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS Windows, 3 sections
+```
+
+
+
+
+
 
 
 
