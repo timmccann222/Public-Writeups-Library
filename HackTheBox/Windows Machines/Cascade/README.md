@@ -390,7 +390,7 @@ try {
 }
 ```
 
-I can also see that `CascCrypto` is a DLL being used.
+I can also see that `CascCrypto` is a DLL being used in the main executable `CascAudit.exe`.
 
 ```csharp
 using System;
@@ -401,6 +401,34 @@ using CascAudiot.My;
 using CascCrypto;
 using Microsoft.VisualBasic.CompilerServices;
 ```
+
+Loaded the `CascCrypto.dll` into DnSpy and found the decrypt function:
+
+```csharp
+public static string DecryptString(string EncryptedString, string Key) {
+  byte[] array = Convert.FromBase64String(EncryptedString);
+  Aes aes = Aes.Create();
+  aes.KeySize = 128;
+  aes.BlockSize = 128;
+  aes.IV = Encoding.UTF8.GetBytes("1tdyjCbY1Ix49842");
+  aes.Mode = CipherMode.CBC;
+  aes.Key = Encoding.UTF8.GetBytes(Key);
+  string @string;
+  using(MemoryStream memoryStream = new MemoryStream(array)) {
+    using(CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read)) {
+      byte[] array2 = new byte[checked(array.Length - 1 + 1)];
+      cryptoStream.Read(array2, 0, array2.Length);
+      @string = Encoding.UTF8.GetString(array2);
+    }
+  }
+  return @string;
+}
+```
+
+The code is using the IV (Initialization Vector) `1tdyjCbY1Ix49842` and the code is basically using the AES 128 bit decryption with the cipher mode CBC and a key size of 128 bits. Based on the information at hand, I can decrypt the password using the following [website](https://www.devglan.com/online-tools/aes-encryption-decryption).
+
+
+
 
 
 
