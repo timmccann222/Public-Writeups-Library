@@ -240,9 +240,39 @@ Mode                LastWriteTime         Length Name
 
 # Root Flag
 
+## Windows Privilege Escalation 
 
+The file `winPEASx64.exe` is deleted by AV and bloodhound requires credentials but using `winPEAS.bat`, I can see reference made to `ConsoleHost_history.txt`:
 
+```bash
+PS default transcript history
 
+Checking PS history file
+ Volume in drive C has no label.
+ Volume Serial Number is 22CC-AE66
+
+ Directory of C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine
+
+03/04/2022  12:46 AM               434 ConsoleHost_history.txt
+               1 File(s)            434 bytes
+               0 Dir(s)   5,471,080,448 bytes free
+```
+
+The `ConsoleHost_history.txt` file contains commands run by the user we are connected as:
+
+```powershell
+story.txt
+whoami
+ipconfig /all
+netstat -ano |select-string LIST
+$so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+$p = ConvertTo-SecureString 'E3R$Q62^12p7PLlC%KWaxuaV' -AsPlainText -Force
+$c = New-Object System.Management.Automation.PSCredential ('svc_deploy', $p)
+invoke-command -computername localhost -credential $c -port 5986 -usessl -
+SessionOption $so -scriptblock {whoami}
+get-aduser -filter * -properties *
+exit
+```
 
 
 
