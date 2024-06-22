@@ -119,3 +119,33 @@ Host script results:
 |_  start_date: N/A
 |_clock-skew: mean: 6h59m59s, deviation: 0s, median: 6h59m59s
 ```
+
+## HTTP Port 80 - Enumeration
+
+Found a potential user `contact@intelligence.htb` while looking through the website.
+
+Used `ffuf` to enumerate hidden directories:
+
+```bash
+ffuf -u http://10.10.10.248/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -ic
+
+documents               [Status: 301, Size: 153, Words: 9, Lines: 2, Duration: 79ms]
+Documents               [Status: 301, Size: 153, Words: 9, Lines: 2, Duration: 109ms]
+```
+
+## SMB Enumeration
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
