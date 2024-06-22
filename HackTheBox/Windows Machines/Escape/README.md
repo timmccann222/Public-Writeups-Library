@@ -220,7 +220,7 @@ SMB         10.10.11.202    445    DC               1109: sequel\SQLServer2005SQ
 
 ## Port 1433 - MSSQL Enumeration
 
-
+Doesn't seem to be working as per official writeup.
 
 
 
