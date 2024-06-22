@@ -460,9 +460,11 @@ NT AUTHORITY\NTLM Authentication           Well-known group S-1-5-64-10         
 Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
 ```
 
-We can see that the user `ryan` is a member of the group `DnsAdmins`. A search online shows that we can perform a [privilege escalation attack](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) to SYSTEM by exploiting this group membership.
+We can see that the user `ryan` is a member of the group `DnsAdmins`. A search online shows that we can perform a [privilege escalation attack](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) to SYSTEM by exploiting this group membership. The attack relies on a DLL injection into the dns service running as SYSTEM on the DNS server which most of the time is on a Domain Contoller. For the attack to work, we need to have compromised a user that belongs to a DnsAdmins group on a domain, which `ryan` is a member of.
 
+It is important to note that the problem with generating the DLL with `Msfvenom` is that it crashes the DNS service after it restarts; that’s because the reverse shell created with Msfvenom does not fork as a separate process for the elevated shell. That’s fine for a CTF, but would make for a bad day in a real pentest.
 
+To get around this, we can add a function in the DLL that starts an elevated shell in a new thread and keeps the DNS service running. IPPSec and this [article](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) cover how to do this.
 
 
 
