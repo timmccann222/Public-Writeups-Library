@@ -144,7 +144,7 @@ Used Burpsuite Intruder and the observed naming convention to see if there were 
 
 ![BurpSuite Intruder](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/BurpSuite%20Intruder.png)
 
-Found a PDF titled `2020-06-04-upload.pdf` that contained a password:
+Found a PDF titled `2020-06-04-upload.pdf` that contained a password `NewIntelligenceCorpUser9876`:
 
 ![Account Guide](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/Account%20Guide.png)
 
@@ -215,9 +215,32 @@ result: 0 Success
 Attempted to extract users via LDAP:
 
 ```bash
+ldapsearch -x -H ldaps://10.10.10.248:3269 -D '' -w '' -b "DC=intelligence,DC=htb" '(objectClass=person)'
 ```
 
+## PDF File Enumeration
 
+Spent some time doing some other enumeration to find potential usernames for the credentials found. Running `exiftool` against the PDF's returns the creators names:
+
+```bash
+exiftool *.pdf | grep "Creator"
+
+Creator                         : William.Lee
+Creator                         : Jason.Patterson
+Creator                         : Jose.Williams
+Creator                         : Jason.Patterson
+```
+
+Used `kerbrute` to confirm the users are valid:
+
+```bash
+sudo ./kerbrute_linux_amd64 userenum --dc 10.10.10.248 -d intelligence.htb -o kerbrute-user-enum /home/kali/Downloads/HackTheBox/Intelligence/userlist
+
+2024/06/23 12:47:36 >  [+] VALID USERNAME:       Jose.Williams@intelligence.htb
+2024/06/23 12:47:36 >  [+] VALID USERNAME:       William.Lee@intelligence.htb
+2024/06/23 12:47:36 >  [+] VALID USERNAME:       Jason.Patterson@intelligence.htb
+2024/06/23 12:47:36 >  Done! Tested 5 usernames (3 valid) in 0.067 seconds
+```
 
 
 
