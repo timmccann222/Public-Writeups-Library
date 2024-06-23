@@ -140,13 +140,17 @@ The `documents` sub-directory contains PDF uploads with the naming convention se
 2020-12-15-upload.pdf
 ```
 
-Used Burpsuite Intruder and the observed naming convention to see if there were any other documents under this sub directory.
+Used Burpsuite Intruder and the observed naming convention to see if there were any other documents under this sub directory. Used the payload ClusterBomb and set the variables to the month and date.
 
+![BurpSuite Intruder](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/BurpSuite%20Intruder.png)
 
+Found a PDF titled `2020-06-04-upload.pdf` that contained a password:
 
+![Account Guide](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/Account%20Guide.png)
 
+Found a PDF titled `2020-12-30-upload.pdf` which contains potnetial user `ted` and reference to **service accounts**:
 
-
+![Internal IT Update](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/Internal%20IT%20Update.png)
 
 ## SMB Enumeration
 
@@ -177,6 +181,41 @@ crackmapexec smb 10.10.10.248 -u 'guest' -p '' --users
 crackmapexec smb 10.10.10.248 -u '' -p '' --shares -M spider_plus
 ```
 
+## LDAP Enumeration
+
+Extracted base naming contexts:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.248 -s base namingcontexts
+
+# extended LDIF
+#
+# LDAPv3
+# base <> (default) with scope baseObject
+# filter: (objectclass=*)
+# requesting: namingcontexts 
+#
+
+#
+dn:
+namingcontexts: DC=intelligence,DC=htb
+namingcontexts: CN=Configuration,DC=intelligence,DC=htb
+namingcontexts: CN=Schema,CN=Configuration,DC=intelligence,DC=htb
+namingcontexts: DC=DomainDnsZones,DC=intelligence,DC=htb
+namingcontexts: DC=ForestDnsZones,DC=intelligence,DC=htb
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+```
+
+Attempted to extract users via LDAP:
+
+```bash
+```
 
 
 
