@@ -242,6 +242,54 @@ sudo ./kerbrute_linux_amd64 userenum --dc 10.10.10.248 -d intelligence.htb -o ke
 2024/06/23 12:47:36 >  Done! Tested 5 usernames (3 valid) in 0.067 seconds
 ```
 
+Need to download the rest of the files, use python script to generate a list of file names and wget to download these files.
+
+```bash
+for i in $(cat dates_2020.txt); do wget http://10.10.10.248/documents/$i; done
+```
+
+Pulled users from the pdf and removed duplicates:
+
+```bash
+exiftool *.pdf | grep 'Creator' | awk -F ': ' '{print $2}' | sort | uniq > userlist
+```
+
+Used `kerbrute` to validate usernames:
+
+```bash
+sudo ./kerbrute_linux_amd64 userenum --dc 10.10.10.248 -d intelligence.htb -o kerbrute-user-enum /home/kali/Downloads/HackTheBox/Intelligence/userlist
+
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Anita.Roberts@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Brian.Baker@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Brian.Morris@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Daniel.Shelton@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Darryl.Harris@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Danny.Matthews@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       David.Mcbride@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       David.Reed@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       David.Wilson@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Ian.Duncan@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Jason.Patterson@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Jason.Wright@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Jennifer.Thomas@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Jessica.Moody@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Kaitlyn.Zimmerman@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Jose.Williams@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       John.Coleman@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Nicole.Brock@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Kelly.Long@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Richard.Williams@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Samuel.Richardson@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Scott.Scott@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Stephanie.Young@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Teresa.Williamson@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Thomas.Hall@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Thomas.Valenzuela@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Tiffany.Molina@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Veronica.Patel@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       William.Lee@intelligence.htb
+2024/06/23 15:16:25 >  [+] VALID USERNAME:       Travis.Evans@intelligence.htb
+```
 
 
 
