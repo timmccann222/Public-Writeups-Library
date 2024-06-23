@@ -133,7 +133,49 @@ documents               [Status: 301, Size: 153, Words: 9, Lines: 2, Duration: 7
 Documents               [Status: 301, Size: 153, Words: 9, Lines: 2, Duration: 109ms]
 ```
 
+The `documents` sub-directory contains PDF uploads with the naming convention seen below:
+
+```bash
+2020-01-01-upload.pdf
+2020-12-15-upload.pdf
+```
+
+Used Burpsuite Intruder and the observed naming convention to see if there were any other documents under this sub directory.
+
+
+
+
+
+
+
 ## SMB Enumeration
+
+Used `enum4linux` but did not return anything of interest.
+
+```bash
+enum4linux -a 10.10.10.248 > enum4linux.txt
+```
+
+Tested for NULL shares with anonymous login. Was successful but did not return any shares:
+
+```bash
+smbclient -L //10.10.10.248 -N
+             
+Anonymous login successful
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+```
+
+Tried enumerating shares with `crackmapexec` but didn't return anything useful.
+
+```bash
+crackmapexec smb 10.10.10.248 -u '' -p '' --shares
+crackmapexec smb 10.10.10.248 -u 'guest' -p '' --shares
+crackmapexec smb 10.10.10.248 -u '' -p '' --users
+crackmapexec smb 10.10.10.248 -u 'guest' -p '' --users
+crackmapexec smb 10.10.10.248 -u '' -p '' --shares -M spider_plus
+```
 
 
 
