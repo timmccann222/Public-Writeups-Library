@@ -423,7 +423,7 @@ Used bloodhound to enumerate the domain:
 bloodhound-python -ns 10.10.10.248 -d intelligence.htb -dc dc.intelligence.htb -u 'Ted.Graves' -p 'Mr.Teddy' -c All
 ```
 
-
+![Bloodhound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/Bloodhound.png)
 
 
 
