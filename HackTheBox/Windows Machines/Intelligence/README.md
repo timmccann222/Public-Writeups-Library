@@ -421,9 +421,9 @@ Used bloodhound to enumerate the domain:
 
 ```bash
 bloodhound-python -ns 10.10.10.248 -d intelligence.htb -dc dc.intelligence.htb -u 'Ted.Graves' -p 'Mr.Teddy' -c All
-
-
 ```
+
+
 
 
 
