@@ -89,7 +89,9 @@ Host script results:
 
 ## Web Enumeration
 
+Found a web settings page:
 
+![Settings Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Return/Images/Web%20-%20Settings%20Page.png)
 
 
 
