@@ -89,7 +89,7 @@ Host script results:
 
 ## Web Enumeration
 
-Found a web settings page:
+Found a website hosted on port 80. The website has a settings page, which looks to make a request over port 389 with the user `svc-printer`. The password is not visible:
 
 ![Settings Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Return/Images/Web%20-%20Settings%20Page.png)
 
