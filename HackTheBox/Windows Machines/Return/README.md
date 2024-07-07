@@ -171,6 +171,7 @@ NT AUTHORITY\NTLM Authentication           Well-known group S-1-5-64-10  Mandato
 Mandatory Label\High Mandatory Level       Label            S-1-16-12288
 ```
 
+Can see that the user `svc-printer` is a member of the `Server Operators` [group](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups#bkmk-serveroperators). Members of the Server Operators group can sign in to a server interactively, create and delete network shared resources, start and stop services, back up and restore files, format the hard disk drive of the computer, and shut down the computer.
 
 
 
