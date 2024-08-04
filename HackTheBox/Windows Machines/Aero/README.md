@@ -39,7 +39,9 @@ Notes:
 
 Selecting the browse button to upload a file shows that the available file types supported are `.theme` and `.themepack`.
 
+## CVE-2023-38146
 
+A search online shows the CVE-2023-38146 CVE ID for a remote code execution vulnerability in Windows themes on Windows 11.
 
 
 
