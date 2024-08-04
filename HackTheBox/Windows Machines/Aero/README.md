@@ -35,3 +35,14 @@ Notes:
 * Email found `support@aerohub.htb`
 * Upload functionality found:
 
+![Upload Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Windows%20Machines/Aero/Images/Upload%20Page.png)
+
+Selecting the browse button to upload a file shows that the available file types supported are `.theme` and `.themepack`.
+
+
+
+
+
+
+
+
