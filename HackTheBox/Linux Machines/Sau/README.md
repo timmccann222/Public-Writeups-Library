@@ -95,6 +95,7 @@ Notes:
 
 * Website is powered by `request-baskets | Version: 1.2.1` and source code looks to be available on [github](https://github.com/darklynx/request-baskets).
 * There is [CVE-2023-27163](https://github.com/entr0pie/CVE-2023-27163) available for this version of `request baskets` software.
+* The CVE is for SSRF vulnerability.
 
 
 
