@@ -7,12 +7,31 @@
 All Port Scan:
 
 ```bash
-sudo nmap -T5 --open -sS -vvv --min-rate=300 --max-retries=3 -p- -oN all-ports-nmap-report 10.10.11.224
+PORT      STATE    SERVICE REASON
+22/tcp    open     ssh     syn-ack ttl 63
+80/tcp    filtered http    no-response
+8338/tcp  filtered unknown no-response
+12394/tcp filtered unknown no-response
+13091/tcp filtered unknown no-response
+19721/tcp filtered unknown no-response
+25327/tcp filtered unknown no-response
+53819/tcp filtered unknown no-response
+55555/tcp open     unknown syn-ack ttl 63
+64901/tcp filtered unknown no-response
+```
+
+
+All Open Port Scan:
+
+```bash
+sudo nmap -T5 --open -sS -vvv --min-rate=300 --max-retries=3 -p- -oN all-open-ports-nmap-report 10.10.11.224
 
 PORT      STATE SERVICE REASON
 22/tcp    open  ssh     syn-ack ttl 63
 55555/tcp open  unknown syn-ack ttl 63
 ```
+
+
 
 NMAP Service Scan:
 
