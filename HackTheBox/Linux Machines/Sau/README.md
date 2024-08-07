@@ -123,8 +123,13 @@ Notes:
 * Website is powered by `request-baskets | Version: 1.2.1` and source code looks to be available on [github](https://github.com/darklynx/request-baskets).
 * There is [CVE-2023-27163](https://github.com/entr0pie/CVE-2023-27163) available for this version of `request baskets` software.
 * The CVE is for SSRF vulnerability, which can allow us to access internal services hosted on ports that are not accessible to external users (i.e. filtered ports 80 and 8338).
+* The vulnerability works due to us being able to setup a Forward URL that forwards our request to the server. We can also enable proxy response, which will then return any response back to the client. The "Insecure TLS" set to true will bypass certificate verification and "Expand Path" set to true makes the forwared url path expanded when the original http request contains a compound path. Sending a request with the configuration below returns the application hosted on port 80 and 8338. 
 
 ![SSRF](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Sau/Images/SSRF.png)
+
+* Found application Maltrail (v0.53) hosted on port 80.
+
+![Maltrail](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Sau/Images/Maltrail%20Application.png)
 
 
 
