@@ -131,6 +131,17 @@ Attempting to visit web page posted on port 80, I recieve a login popup and a 40
 
 ![401 Error](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Broker/Images/Website%20401%20Error.png)
 
+Searching online, I found an [article](https://oskari.org/documentation/backend/setup-jetty#:~:text=Setting%20up%20Jetty&text=You%20can%20login%20as%3A,admin%22%20and%20password%20%22oskari%22) that provides defualt login credentials for Jetty.
+
+* User Credentials `user:user` - worked!
+* Admin Credentials `admin:oskari` - failed.
+
+Logging in shows we have access to Apache ActiveMQ:
+
+![Apache ActiveMQ](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Broker/Images/Apache%20ActiveMQ.png)
+
+
+
 
 
 
