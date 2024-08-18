@@ -129,7 +129,7 @@ PORT      STATE SERVICE    VERSION
 
 Attempting to visit web page posted on port 80, I recieve a login popup and a 401 error due to not knowing the credentials.
 
-
+![401 Error](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Broker/Images/Website%20401%20Error.png)
 
 
 
