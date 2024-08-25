@@ -66,6 +66,10 @@ Edited `/etc/hosts` file and added entries the domain and subdomain observed:
 10.10.11.227    tickets.keeper.htb
 ```
 
+New webpage isreutrned when navigating to `http://tickets.keeper.htb/rt/`:
+
+
+
 
 
 
