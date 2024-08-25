@@ -68,7 +68,7 @@ Edited `/etc/hosts` file and added entries the domain and subdomain observed:
 
 New webpage isreutrned when navigating to `http://tickets.keeper.htb/rt/`:
 
-
+![Login Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Login%20Page.png)
 
 
 
