@@ -70,6 +70,8 @@ New login webpage is returned when navigating to `http://tickets.keeper.htb/rt/`
 
 ![Login Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Login%20Page.png)
 
+Default credentials `root:password` were found in this [link](https://wiki.gentoo.org/wiki/Request_Tracker#:~:text=%2D%2Daction%20comment-,Log%20in,root%20%2C%20and%20password%20is%20password%20.) that work and I am able to login.
 
+![Successful Login](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Successful%20Login.png)
 
 
