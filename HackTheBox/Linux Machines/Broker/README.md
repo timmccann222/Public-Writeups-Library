@@ -258,7 +258,15 @@ User activemq may run the following commands on broker:
     (ALL : ALL) NOPASSWD: /usr/sbin/nginx
 ```
 
+Found this (github)[https://gist.github.com/DylanGrl/ab497e2f01c7d672a80ab9561a903406] and followed the steps outlined to get root.
 
+```bash
+activemq@broker:/home/activemq/.ssh$ ssh -i root root@localhost
+
+root@broker:~# cat root.txt
+cat root.txt
+5bd7be0d627c56f9b0.......
+```
 
 
 
