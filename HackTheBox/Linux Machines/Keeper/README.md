@@ -74,4 +74,18 @@ Default credentials `root:password` were found in this [link](https://wiki.gento
 
 ![Successful Login](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Successful%20Login.png)
 
+Under Admin tab, can see two users are enabled.
+
+![Enabled Users](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Users%20Enabled.png)
+
+Looking through the ticketing system, was able to find the user `lnorgaard@keeper.htb` and a comment with a default passowrd `Welcome2023!`.
+
+![Default Credentials](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Default%20Password.png)
+
+
+
+
+
+
+
 
