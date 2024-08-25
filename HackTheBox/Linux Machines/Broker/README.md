@@ -244,7 +244,20 @@ cat user.txt
 ccfaec2a1a9343d88.......
 ```
 
-# Root flag:
+# Root Flag:
+
+
+Earlier, I saw that I was able to run the command `nginx` with sudo privileges.
+
+```bash
+# Checked Sudo Privileges
+Apache ActiveMQ$ sudo -l
+Matching Defaults entries for activemq on broker:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty
+
+User activemq may run the following commands on broker:
+    (ALL : ALL) NOPASSWD: /usr/sbin/nginx
+```
 
 
 
