@@ -82,7 +82,14 @@ Looking through the ticketing system, was able to find the user `lnorgaard@keepe
 
 ![Default Credentials](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/Default%20Password.png)
 
+Was then able to SSH into target machine using credentials `lnorgaard:Welcome2023!`:
 
+```bash
+ssh lnorgaard@10.10.11.227
+
+lnorgaard@keeper:~$ id
+uid=1000(lnorgaard) gid=1000(lnorgaard) groups=1000(lnorgaard)
+```
 
 
 
