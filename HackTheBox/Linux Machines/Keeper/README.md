@@ -91,6 +91,27 @@ lnorgaard@keeper:~$ id
 uid=1000(lnorgaard) gid=1000(lnorgaard) groups=1000(lnorgaard)
 ```
 
+Recovered user.txt flag:
+
+```bash
+lnorgaard@keeper:~$ cat user.txt
+71ba772bc110ce065983.........
+```
+
+# Root Flag
+
+Found a file titled `RT30000.zip` and copied it back to my local machine.
+
+```bash
+scp lnorgaard@10.10.11.227:/home/lnorgaard/RT30000.zip .
+```
+
+
+
+
+
+
+
 
 
 
