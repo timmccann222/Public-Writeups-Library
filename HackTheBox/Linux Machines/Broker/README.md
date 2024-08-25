@@ -246,7 +246,6 @@ ccfaec2a1a9343d88.......
 
 # Root Flag:
 
-
 Earlier, I saw that I was able to run the command `nginx` with sudo privileges.
 
 ```bash
