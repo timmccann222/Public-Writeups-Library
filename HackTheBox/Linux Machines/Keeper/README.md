@@ -53,7 +53,18 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 ## Web Enumeration (Port 80)
 
+Navigating to the website hosted on port 80 provides the following text:
 
+```bash
+To raise an IT support ticket, please visit tickets.keeper.htb/rt/
+```
+
+Edited `/etc/hosts` file and added entries the domain and subdomain observed:
+
+```bash
+10.10.11.227    keeper.htb
+10.10.11.227    tickets.keeper.htb
+```
 
 
 
