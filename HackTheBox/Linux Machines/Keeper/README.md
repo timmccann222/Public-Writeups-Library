@@ -217,7 +217,7 @@ root@keeper:~#
 Got root flag:
 
 ```bash
-
+0ee8a7fb145....
 ```
 
 
