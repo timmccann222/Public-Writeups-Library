@@ -54,10 +54,9 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Web App Enumeration:
 
-* Login Page
+* Login Page - tried multiple default usernames and passwords but nothing worked.
 * Email found `info@cozyhosting.htb`
 * No developer comments on web page.
-* 
 
 Directory Fuzzing with `ffuf` tool to find hidden directories:
 
@@ -81,13 +80,35 @@ b33p%2Ehtml             [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 73m
 help%2523drupal         [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 102ms]
 ```
 
+While working through the directories above, an error Page indicates [Spring Boot](https://stackoverflow.com/questions/31134333/this-application-has-no-explicit-mapping-for-error) is being used:
 
+![Error Page](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/CozyHosting/Images/Error%20Page.png)
 
+Performed an additional web enumeration with `ffuf` using `/usr/share/wordlists/seclists/Discovery/Web-Content/spring-boot.txt`:
 
+```bash
+ffuf -c -u http://cozyhosting.htb/FUZZ -w /usr/share/wordlists/seclists/Discovery/Web-Content/spring-boot.txt -ic
 
+actuator                [Status: 200, Size: 634, Words: 1, Lines: 1, Duration: 144ms]
+actuator/env/home       [Status: 200, Size: 487, Words: 13, Lines: 1, Duration: 116ms]
+actuator/env/lang       [Status: 200, Size: 487, Words: 13, Lines: 1, Duration: 129ms]
+actuator/env/path       [Status: 200, Size: 487, Words: 13, Lines: 1, Duration: 130ms]
+actuator/health         [Status: 200, Size: 15, Words: 1, Lines: 1, Duration: 227ms]
+actuator/mappings       [Status: 200, Size: 9938, Words: 108, Lines: 1, Duration: 230ms]
+actuator/sessions       [Status: 200, Size: 48, Words: 1, Lines: 1, Duration: 196ms]
+actuator/env            [Status: 200, Size: 4957, Words: 120, Lines: 1, Duration: 522ms]
+actuator/beans          [Status: 200, Size: 127224, Words: 542, Lines: 1, Duration: 143ms]
+```
 
+I can see that the `actuator` directory is returned and a search online returns multiple [exploits](https://github.com/pyn3rd/Spring-Boot-Vulnerability) for exposed Actuator endpoints. Looking through the `actuator/sessions` directory, I can see a session for the user `kanderson`
 
+```bash
+{"AFE0D93E8A1C956408BE89B8D6BA71B7":"kanderson"}
+```
 
+If I edit the session cookie value and replace it with Kanderson's session, I can now visit the `admin` page.
+
+![Admin Dashboard](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/CozyHosting/Images/Admin%20Dashboard.png)
 
 
 
