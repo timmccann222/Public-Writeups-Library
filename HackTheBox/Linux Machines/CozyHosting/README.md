@@ -138,6 +138,16 @@ Upgrade-Insecure-Requests: 1
 host=10.0.0.1&username=test
 ```
 
+Based on the errors observed, the ssh command is using the `-i` parameter and so the structure of the command may look as something below:
+
+```bash
+ssh -i [key] [username]@[hostname]
+```
+
+
+
+
+
 
 
 
