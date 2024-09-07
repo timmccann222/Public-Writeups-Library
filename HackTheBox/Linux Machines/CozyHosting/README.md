@@ -49,3 +49,55 @@ PORT   STATE SERVICE VERSION
 |_http-server-header: nginx/1.18.0 (Ubuntu)
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
+
+## Web Service Enumeration (Port 80)
+
+Web App Enumeration:
+
+* Login Page
+* Email found `info@cozyhosting.htb`
+* No developer comments on web page.
+* 
+
+Directory Fuzzing with `ffuf` tool to find hidden directories:
+
+```bash
+ffuf -c -u http://cozyhosting.htb/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -ic
+
+index                   [Status: 200, Size: 12706, Words: 4263, Lines: 285, Duration: 111ms]
+                        [Status: 200, Size: 12706, Words: 4263, Lines: 285, Duration: 127ms]
+login                   [Status: 200, Size: 4431, Words: 1718, Lines: 97, Duration: 982ms]
+admin                   [Status: 401, Size: 97, Words: 1, Lines: 1, Duration: 169ms]
+logout                  [Status: 204, Size: 0, Words: 1, Lines: 1, Duration: 130ms]
+error                   [Status: 500, Size: 73, Words: 1, Lines: 1, Duration: 466ms]
+                        [Status: 200, Size: 12706, Words: 4263, Lines: 285, Duration: 169ms]
+27079%5Fclassicpeople2%2Ejpg [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 104ms]
+children%2527s_tent     [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 161ms]
+tiki%2Epng              [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 77ms]
+Wanted%2e%2e%2e         [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 74ms]
+How_to%2e%2e%2e         [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 86ms]
+squishdot_rss10%2Etxt   [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 108ms]
+b33p%2Ehtml             [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 73ms]
+help%2523drupal         [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 102ms]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
