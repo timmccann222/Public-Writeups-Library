@@ -114,7 +114,7 @@ There is a feature at the bottom of the page that allows us enter input which is
 
 ![Admin Page Functionality](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/CozyHosting/Images/Admin%20Page%20Functionality.png)
 
-In BurpSuite, I can see the POST request is made to `/executessh`, which also indicates that an ssh connection is being made.
+In BurpSuite, I can see the POST request is made to `/executessh`, which also indicates that an ssh connection is being made but also indicates that the ssh command might be involved.
 
 ```http
 POST /executessh HTTP/1.1
