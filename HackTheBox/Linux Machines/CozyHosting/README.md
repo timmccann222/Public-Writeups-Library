@@ -110,9 +110,29 @@ If I edit the session cookie value and replace it with Kanderson's session, I ca
 
 ![Admin Dashboard](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/CozyHosting/Images/Admin%20Dashboard.png)
 
+There is a feature at the bottom of the page that allows us enter input which is executed on the target. The error message indicates an ssh connection is being performed.
 
+![Admin Page Functionality](https://github.com/timmccann222/Public-Writeups-Library/blob/main/HackTheBox/Linux%20Machines/CozyHosting/Images/Admin%20Page%20Functionality.png)
 
+In BurpSuite, I can see the POST request is made to `/executessh`, which also indicates that an ssh connection is being made.
 
+```http
+POST /executessh HTTP/1.1
+Host: cozyhosting.htb
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 27
+Origin: http://cozyhosting.htb
+Connection: close
+Referer: http://cozyhosting.htb/admin?error=Invalid%20hostname!
+Cookie: JSESSIONID=0A81A5F2D9476C0A8D2199EF85FB5EF9
+Upgrade-Insecure-Requests: 1
+
+host=10.0.0.1&username=test
+```
 
 
 
